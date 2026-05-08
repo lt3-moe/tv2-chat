@@ -13,7 +13,25 @@ import { useState } from "react";
 
 interface Message {
   text: string;
-  sender: string;
+  sender?: string;
+}
+
+function mergeSenders(messages: Message[]): Message[] {
+  if (messages.length === 0) {
+    return messages;
+  }
+
+  const result = [messages[0]];
+  for (const message of messages.slice(1)) {
+    if (message.sender == result[result.length - 1].sender) {
+      result.push({
+        text: message.text,
+      });
+    } else {
+      result.push(message);
+    }
+  }
+  return result;
 }
 
 const Chat = ({
@@ -28,7 +46,7 @@ const Chat = ({
       <MainContainer>
         <ChatContainer>
           <MessageList>
-            {messages.map((message) => (
+            {mergeSenders(messages).map((message) => (
               <Message
                 type="text"
                 model={{
