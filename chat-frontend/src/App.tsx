@@ -22,14 +22,16 @@ function mergeSenders(messages: Message[]): Message[] {
   }
 
   const result = [messages[0]];
+  let previousMessage = result[0];
   for (const message of messages.slice(1)) {
-    if (message.sender == result[result.length - 1].sender) {
+    if (message.sender == previousMessage.sender) {
       result.push({
         text: message.text,
       });
     } else {
       result.push(message);
     }
+    previousMessage = message;
   }
   return result;
 }
