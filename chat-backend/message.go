@@ -55,3 +55,11 @@ type TextMessage struct {
 func (t TextMessage) Kind() string {
 	return "newMessage"
 }
+
+type ViewCount struct {
+	Count int `json:"count"`
+}
+
+func (v ViewCount) Kind() string {
+	return "viewCount"
+}

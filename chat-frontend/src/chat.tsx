@@ -18,7 +18,12 @@ interface UserMessage {
   id: string;
 }
 
-type AnyWsMessage = UserMessage;
+interface ViewCount {
+  kind: "viewCount";
+  count: number;
+}
+
+type AnyWsMessage = UserMessage | ViewCount;
 
 interface MessageMerged extends UserMessage {
   showSender: boolean;
