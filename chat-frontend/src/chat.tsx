@@ -68,41 +68,39 @@ const ChatUI = ({
   onSend: (text: string) => void;
 }) => {
   return (
-    <div style={{ position: "relative", height: "97vh" }}>
-      <MainContainer>
-        <ChatContainer>
-          <MessageList>
-            {mergeSenders(messages).map((message, idx) => {
-              const messageColor = pickMessageColor(message.author);
-              return (
-                <Message
-                  key={`message-${idx}`}
-                  type="text"
-                  model={{
-                    message: message.text,
-                    direction: "outgoing",
-                    position: "last",
-                  }}
-                  className="custom-color-message"
-                  // @ts-expect-error style is defined as custom css based on var
-                  style={{ "--bubble-color": messageColor }}
-                >
-                  <Message.Header>
-                    {message.showSender ? message.author : null}
-                  </Message.Header>
-                  <Message.TextContent>{message.text}</Message.TextContent>
-                </Message>
-              );
-            })}
-          </MessageList>
-          <MessageInput
-            placeholder="Type message here"
-            attachButton={false}
-            onSend={onSend}
-          />
-        </ChatContainer>
-      </MainContainer>
-    </div>
+    <MainContainer>
+      <ChatContainer>
+        <MessageList>
+          {mergeSenders(messages).map((message, idx) => {
+            const messageColor = pickMessageColor(message.author);
+            return (
+              <Message
+                key={`message-${idx}`}
+                type="text"
+                model={{
+                  message: message.text,
+                  direction: "outgoing",
+                  position: "last",
+                }}
+                className="custom-color-message"
+                // @ts-expect-error style is defined as custom css based on var
+                style={{ "--bubble-color": messageColor }}
+              >
+                <Message.Header>
+                  {message.showSender ? message.author : null}
+                </Message.Header>
+                <Message.TextContent>{message.text}</Message.TextContent>
+              </Message>
+            );
+          })}
+        </MessageList>
+        <MessageInput
+          placeholder="Type message here"
+          attachButton={false}
+          onSend={onSend}
+        />
+      </ChatContainer>
+    </MainContainer>
   );
 };
 

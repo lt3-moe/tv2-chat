@@ -22,7 +22,14 @@ export default function App() {
       >
         <Player />
       </div>
-      <div>
+      <div
+        style={{
+          position: "relative",
+          display: "grid",
+          height: "97vh",
+          width: "auto",
+        }}
+      >
         <Chat />
       </div>
     </div>
