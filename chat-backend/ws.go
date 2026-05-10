@@ -18,7 +18,7 @@ type Client struct {
 	broker   *Broker
 	conn     *websocket.Conn
 	username string
-	send     chan Message
+	send     chan AnyMessage
 }
 
 const (
@@ -58,7 +58,7 @@ func (c *Client) handleIncoming() {
 		}
 		messageText := string(messageRaw)
 		log.Println("got ", messageText, " from", c.username)
-		message := Message{Text: messageText, Author: c.username, Timestamp: int(time.Now().UnixMilli()), Id: uuid.NewString()}
+		message := TextMessage{Text: messageText, Author: c.username, Timestamp: int(time.Now().UnixMilli()), Id: uuid.NewString()}
 		c.broker.broadcast <- message
 	}
 }
@@ -153,7 +153,7 @@ func serveWs(broker *Broker, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	client := &Client{broker: broker, conn: conn, username: username, send: make(chan Message, *scrollbackSize)}
+	client := &Client{broker: broker, conn: conn, username: username, send: make(chan AnyMessage, *scrollbackSize)}
 	broker.Connect(client)
 
 	go client.handleIncoming()

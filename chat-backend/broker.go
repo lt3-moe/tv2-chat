@@ -2,14 +2,18 @@ package main
 
 import "encoding/json"
 
-type Message struct {
+type AnyMessage interface {
+	SerBytes() []byte
+}
+
+type TextMessage struct {
 	Text      string `json:"text"`
 	Author    string `json:"author"`
 	Timestamp int    `json:"timestamp"`
 	Id        string `json:"id"`
 }
 
-func (m *Message) SerBytes() []byte {
+func (m TextMessage) SerBytes() []byte {
 	value, _ := json.Marshal(m)
 	return value
 }
@@ -19,24 +23,24 @@ type Unit struct{}
 type Broker struct {
 	clients map[*Client]Unit
 
-	broadcast  chan Message
+	broadcast  chan AnyMessage
 	register   chan *Client
 	unregister chan *Client
 
-	scrollback []Message
+	scrollback []TextMessage
 }
 
 func newBroker(scrollback int) *Broker {
 	return &Broker{
 		clients:    make(map[*Client]Unit),
-		broadcast:  make(chan Message),
+		broadcast:  make(chan AnyMessage),
 		register:   make(chan *Client),
 		unregister: make(chan *Client),
-		scrollback: make([]Message, 0, scrollback),
+		scrollback: make([]TextMessage, 0, scrollback),
 	}
 }
 
-func (broker *Broker) Send(message Message) {
+func (broker *Broker) Send(message TextMessage) {
 	broker.broadcast <- message
 }
 
@@ -48,20 +52,20 @@ func (broker *Broker) Disconnect(c *Client) {
 	broker.unregister <- c
 }
 
-func (broker *Broker) addToScrollback(message Message) {
+func (broker *Broker) addToScrollback(message TextMessage) {
 	if len(broker.scrollback) == cap(broker.scrollback) {
 		broker.scrollback = broker.scrollback[1:]
 	}
 	broker.scrollback = append(broker.scrollback, message)
 }
 
-func (broker *Broker) dumpScrollback(c chan Message) {
+func (broker *Broker) dumpScrollback(c chan AnyMessage) {
 	for _, message := range broker.scrollback {
 		c <- message
 	}
 }
 
-func (broker *Broker) Run() {
+func (broker *Broker) RunBroadcasts() {
 	for {
 		select {
 		case client := <-broker.register:
@@ -73,7 +77,9 @@ func (broker *Broker) Run() {
 				close(client.send)
 			}
 		case newMessage := <-broker.broadcast:
-			broker.addToScrollback(newMessage)
+			if msg, ok := newMessage.(TextMessage); ok {
+				broker.addToScrollback(msg)
+			}
 			for client := range broker.clients {
 				select {
 				case client.send <- newMessage:
