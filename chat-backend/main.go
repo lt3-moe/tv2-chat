@@ -8,7 +8,7 @@ import (
 
 var staticDir = flag.String("static", "./static", "where to fetch the site static content from")
 var allowAnonymous = flag.Bool("allow-anonymous", false, "enable to allow anonymous users")
-var scrollbackSize = flag.Int("scrollback-size", 100, "number of messages to keep in memory for reconnecting clients")
+var scrollbackSize = flag.Int("scrollback-size", 1000, "number of messages to keep in memory for reconnecting clients")
 
 func main() {
 	flag.Parse()
