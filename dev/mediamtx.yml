@@ -1,0 +1,44 @@
+logLevel: info
+readTimeout: 10s
+writeTimeout: 10s
+writeQueueSize: 1024
+
+authMethod: internal
+authInternalUsers:
+  # Default unprivileged user.
+  # Username. 'any' means any user, including anonymous ones.
+  - user: any
+    # Password. Not used in case of 'any' user.
+    pass:
+    # IPs or networks allowed to use this user. An empty list means any IP.
+    ips: []
+    # Permissions.
+    permissions:
+    - action: read
+      path: webrtc-stream
+    - action: playback
+      path: webrtc-stream
+    - action: publish
+      path: webrtc-stream
+api: false
+metrics: false
+pprof: false
+playback: false
+
+
+rtmp: false
+hls: false
+srt: false
+rtsp: false
+
+webrtc: true
+webrtcAddress: ":8889"
+webrtcLocalTCPAddress: ":8189"
+webrtcLocalUDPAddress: ":8190"
+webrtcEncryption: false  # handled by traefik, video traffic itself is encrypted with keys negotiated during handshake
+webrtcIPsFromInterfaces: true
+webrtcAdditionalHosts: [127.0.0.1]
+
+paths:
+  webrtc-stream:
+    source: publisher
