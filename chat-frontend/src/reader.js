@@ -19,9 +19,9 @@
  * @typedef Conf
  * @type {object}
  * @property {string} url - absolute URL of the WHEP endpoint.
- * @property {string} user - username.
- * @property {string} pass - password.
- * @property {string} token - token.
+ * @property {string} [user] - username.
+ * @property {string} [pass] - password.
+ * @property {string} [token] - token.
  * @property {OnError} onError - called when there's an error.
  * @property {OnTrack} onTrack - called when there's a track available.
  * @property {OnDataChannel} onDataChannel - called when there's a data channel available.
