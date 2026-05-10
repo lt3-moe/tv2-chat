@@ -110,8 +110,18 @@ function getWsUrl(): string {
   return `${location.protocol == "http:" ? "ws" : "wss"}://${location.host}/ws`;
 }
 
+function orderByTimestamp(
+  messages: ReadonlyMap<string, UserMessage>,
+): UserMessage[] {
+  const result = [...messages.values()];
+  result.sort((first, second) => first.timestamp - second.timestamp);
+  return result;
+}
+
 export default function App() {
-  const [state, setState] = useState<UserMessage[]>([]);
+  const [state, setState] = useState<ReadonlyMap<string, UserMessage>>(
+    new Map(),
+  );
   const ws = useRef<WebSocket | null>(null);
 
   useEffect(() => {
@@ -120,7 +130,7 @@ export default function App() {
 
     function onMessage(this: WebSocket, ev: MessageEvent<any>) {
       const message: UserMessage = JSON.parse(ev.data);
-      setState((state) => [...state, message]);
+      setState((state) => new Map([...state, [message.id, message]]));
     }
 
     socket.addEventListener("message", onMessage);
@@ -130,5 +140,10 @@ export default function App() {
     };
   }, []);
 
-  return <Chat messages={state} onSend={(text) => ws.current?.send(text)} />;
+  return (
+    <Chat
+      messages={orderByTimestamp(state)}
+      onSend={(text) => ws.current?.send(text)}
+    />
+  );
 }
