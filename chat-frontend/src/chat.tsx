@@ -8,8 +8,7 @@ import {
   Message,
   MessageInput,
 } from "@chatscope/chat-ui-kit-react";
-import { useCallback, useState } from "react";
-import useWebsocket, { type AnyWsMessage, type UserMessage } from "./ws";
+import { type UserMessage } from "./ws";
 
 interface MessageMerged extends UserMessage {
   showSender: boolean;
@@ -106,23 +105,12 @@ function orderByTimestamp(
   return result;
 }
 
-export default function Chat() {
-  const [state, setState] = useState<ReadonlyMap<string, UserMessage>>(
-    new Map(),
-  );
-
-  const onMessage = useCallback((message: AnyWsMessage) => {
-    if (message.kind == "newMessage") {
-      setState((state) => new Map([...state, [message.id, message]]));
-    }
-  }, []);
-
-  const ws = useWebsocket(onMessage);
-
-  return (
-    <ChatUI
-      messages={orderByTimestamp(state)}
-      onSend={(text) => ws.current?.send(text)}
-    />
-  );
+export default function Chat({
+  messageState,
+  onSend,
+}: {
+  messageState: ReadonlyMap<string, UserMessage>;
+  onSend: (arg0: string) => void;
+}) {
+  return <ChatUI messages={orderByTimestamp(messageState)} onSend={onSend} />;
 }
