@@ -162,9 +162,11 @@ func anonymizeName(seed, value string) string {
 }
 
 func serveWs(broker *Broker, w http.ResponseWriter, r *http.Request) {
-	username, err := parseJwtUsername(r.Header.Get("X-Forwarded-Access-Token"))
+	accessHeader := r.Header.Get("X-Forwarded-Access-Token")
+	username, err := parseJwtUsername(accessHeader)
 	if err != nil {
 		log.Printf("error parsing jwt from header: %s", err)
+		log.Printf("header value was \"%s\"", accessHeader)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
 		err := json.NewEncoder(w).Encode(ErrorResponse{Message: err.Error()})
