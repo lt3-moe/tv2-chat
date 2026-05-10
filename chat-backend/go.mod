@@ -1,0 +1,10 @@
+module chat
+
+go 1.26.3
+
+require github.com/gorilla/websocket v1.5.3
+
+require (
+	github.com/0x6flab/namegenerator v1.4.0
+	github.com/google/uuid v1.6.0
+)
