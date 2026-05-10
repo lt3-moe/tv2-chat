@@ -90,7 +90,7 @@ const ChatUI = ({
         <MessageInput
           placeholder="Type message here"
           attachButton={false}
-          onSend={onSend}
+          onSend={(_innerHtml, textContent) => onSend(textContent)}
         />
       </ChatContainer>
     </MainContainer>
