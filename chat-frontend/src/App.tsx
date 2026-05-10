@@ -2,8 +2,31 @@ import "@chatscope/chat-ui-kit-styles/dist/default/styles.min.css";
 import "./App.css";
 import Chat from "./chat";
 import Player from "./player";
+import { useCallback, useState } from "react";
+import type { AnyWsMessage, UserMessage } from "./ws";
+import useWebsocket from "./ws";
 
 export default function App() {
+  const [chatState, setChatState] = useState<ReadonlyMap<string, UserMessage>>(
+    new Map(),
+  );
+
+  const [viewers, setViewers] = useState<number | undefined>(undefined);
+
+  const onMessage = useCallback((message: AnyWsMessage) => {
+    switch (message.kind) {
+      case "newMessage": {
+        setChatState((state) => new Map([...state, [message.id, message]]));
+        break;
+      }
+      case "viewCount": {
+        setViewers(message.count);
+      }
+    }
+  }, []);
+
+  const ws = useWebsocket(onMessage);
+
   return (
     <div
       style={{
@@ -21,6 +44,7 @@ export default function App() {
         }}
       >
         <Player />
+        Current viewers: {viewers !== undefined ? viewers : "???"}
       </div>
       <div
         style={{
@@ -30,7 +54,10 @@ export default function App() {
           width: "auto",
         }}
       >
-        <Chat />
+        <Chat
+          messageState={chatState}
+          onSend={(text) => ws.current?.send(text)}
+        />
       </div>
     </div>
   );

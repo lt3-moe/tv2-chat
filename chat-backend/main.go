@@ -22,7 +22,7 @@ func main() {
 	http.Handle("/", fs)
 
 	broker := newBroker(*scrollbackSize)
-	go broker.Run()
+	go broker.RunBroadcasts()
 
 	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
 		serveWs(broker, w, r)

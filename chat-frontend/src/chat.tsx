@@ -8,14 +8,7 @@ import {
   Message,
   MessageInput,
 } from "@chatscope/chat-ui-kit-react";
-import { useEffect, useRef, useState } from "react";
-
-interface UserMessage {
-  text: string;
-  author: string;
-  timestamp: number;
-  id: string;
-}
+import { type UserMessage } from "./ws";
 
 interface MessageMerged extends UserMessage {
   showSender: boolean;
@@ -104,10 +97,6 @@ const ChatUI = ({
   );
 };
 
-function getWsUrl(): string {
-  return `${location.protocol == "http:" ? "ws" : "wss"}://${location.host}/ws`;
-}
-
 function orderByTimestamp(
   messages: ReadonlyMap<string, UserMessage>,
 ): UserMessage[] {
@@ -116,32 +105,12 @@ function orderByTimestamp(
   return result;
 }
 
-export default function Chat() {
-  const [state, setState] = useState<ReadonlyMap<string, UserMessage>>(
-    new Map(),
-  );
-  const ws = useRef<WebSocket | null>(null);
-
-  useEffect(() => {
-    const socket = new WebSocket(getWsUrl());
-    ws.current = socket;
-
-    function onMessage(this: WebSocket, ev: MessageEvent<any>) {
-      const message: UserMessage = JSON.parse(ev.data);
-      setState((state) => new Map([...state, [message.id, message]]));
-    }
-
-    socket.addEventListener("message", onMessage);
-
-    return () => {
-      socket.close();
-    };
-  }, []);
-
-  return (
-    <ChatUI
-      messages={orderByTimestamp(state)}
-      onSend={(text) => ws.current?.send(text)}
-    />
-  );
+export default function Chat({
+  messageState,
+  onSend,
+}: {
+  messageState: ReadonlyMap<string, UserMessage>;
+  onSend: (arg0: string) => void;
+}) {
+  return <ChatUI messages={orderByTimestamp(messageState)} onSend={onSend} />;
 }
