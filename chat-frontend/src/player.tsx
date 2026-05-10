@@ -9,7 +9,7 @@ export default function Player(): React.ReactElement {
       height="100%"
       scrolling="no"
       allowFullScreen={true}
-      sandbox="allow-scripts"
+      sandbox="allow-scripts allow-same-origin"
       style={{
         border: "none",
       }}
