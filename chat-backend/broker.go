@@ -47,19 +47,28 @@ func (broker *Broker) dumpScrollback(c chan AnyMessage) {
 	}
 }
 
+func (b *Broker) countUniqueViewers() int {
+	clientNames := map[string]Unit{}
+
+	for client := range b.clients {
+		clientNames[client.username] = Unit{}
+	}
+	return len(clientNames)
+}
+
 func (broker *Broker) RunBroadcasts() {
 	for {
 		select {
 		case client := <-broker.register:
 			broker.clients[client] = Unit{}
 			broker.dumpScrollback(client.send)
-			broker.broadcast <- ViewCount{Count: len(broker.clients)}
+			broker.broadcast <- ViewCount{Count: broker.countUniqueViewers()}
 		case client := <-broker.unregister:
 			if _, ok := broker.clients[client]; ok {
 				delete(broker.clients, client)
 				close(client.send)
 			}
-			broker.broadcast <- ViewCount{Count: len(broker.clients)}
+			broker.broadcast <- ViewCount{Count: broker.countUniqueViewers()}
 		case newMessage := <-broker.broadcast:
 			if msg, ok := newMessage.(TextMessage); ok {
 				broker.addToScrollback(msg)
