@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-var staticDir = flag.String("static", "./static", "where to fetch the site static content from")
+var staticDir = flag.String("static", "./dist", "where to fetch the site static content from")
 var allowAnonymous = flag.Bool("allow-anonymous", false, "enable to allow anonymous users")
 var scrollbackSize = flag.Int("scrollback-size", 1000, "number of messages to keep in memory for reconnecting clients")
 var anonymizeSeed = flag.String("anonymize-seed", "", "Provide seed value to apply simple name anonymization. Disabled when unset.")
