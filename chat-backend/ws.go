@@ -43,7 +43,7 @@ func (c *Client) handleIncoming() {
 	c.conn.SetReadDeadline(time.Now().Add(pongWait))
 	c.conn.SetPongHandler(func(string) error {
 		c.conn.SetReadDeadline(time.Now().Add(pongWait))
-		log.Println("got pong from client")
+		log.Printf("got pong from client %s", c.username)
 		return nil
 	})
 	for {
@@ -111,21 +111,28 @@ func getRandomUsername() string {
 	return fmt.Sprintf("anonymous-%s", name)
 }
 
-func serveWs(broker *Broker, w http.ResponseWriter, r *http.Request) {
-	username := r.Header.Get("X-Forwarded-Preferred-Username")
-	if username == "" {
+func parseJwtUsername(value string) (string, error) {
+	if value == "" {
 		if *allowAnonymous {
-			username = getRandomUsername()
+			return getRandomUsername(), nil
 		} else {
-			w.Header().Set("Content-Type", "application/json")
-			w.WriteHeader(http.StatusBadRequest)
-			err := json.NewEncoder(w).Encode(ErrorResponse{Message: "username must be provided via X-Forwarded-Preferred-Username"})
-			if err != nil {
-				log.Println(err)
-			}
-			log.Println("rejected anonymous client")
-			return
+			return "", fmt.Errorf("username must be provided via X-Forwarded-Preferred-Username")
 		}
+	}
+	return value, nil
+}
+
+func serveWs(broker *Broker, w http.ResponseWriter, r *http.Request) {
+	username, err := parseJwtUsername(r.Header.Get("X-Forwarded-Preferred-Username"))
+	if err != nil {
+		log.Printf("error parsing jwt: %s", err)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		err := json.NewEncoder(w).Encode(ErrorResponse{Message: err.Error()})
+		if err != nil {
+			log.Println(err)
+		}
+		return
 
 	}
 
