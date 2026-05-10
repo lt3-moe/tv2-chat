@@ -1,9 +1,10 @@
 import type React from "react";
 import { useEffect, useRef } from "react";
-import { MediaMTXWebRTCReader } from "./reader.ts";
+import { MediaMTXWebRTCReader } from "./reader.js";
 
 export default function Player(): React.ReactElement {
   const reader = useRef<MediaMTXWebRTCReader>(null);
+  const video = useRef<HTMLVideoElement>(null);
   useEffect(() => {
     reader.current = new MediaMTXWebRTCReader({
       url: `${window.location.origin}/webrtc-stream/whep`,
@@ -11,9 +12,8 @@ export default function Player(): React.ReactElement {
         console.error(err);
       },
       onTrack: (evt) => {
-        const src = document.getElementById("myvideo");
-        if (src !== null) {
-          src.srcObject = evt.streams[0];
+        if (video.current !== null) {
+          video.current.srcObject = evt.streams[0];
         }
       },
       onDataChannel: (evt) => {
@@ -33,6 +33,7 @@ export default function Player(): React.ReactElement {
 
   return (
     <video
+      ref={video}
       id="myvideo"
       controls
       autoPlay
