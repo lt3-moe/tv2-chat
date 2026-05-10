@@ -1,15 +1,17 @@
 package main
 
 import (
+	"crypto/sha256"
+	"encoding/binary"
 	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
 	"time"
 
-	"github.com/0x6flab/namegenerator"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
+	"github.com/goombaio/namegenerator"
 	"github.com/gorilla/websocket"
 )
 
@@ -107,7 +109,8 @@ type ErrorResponse struct {
 }
 
 func getRandomUsername() string {
-	generator := namegenerator.NewGenerator().WithGender(namegenerator.Female)
+	seed := time.Now().UTC().UnixNano()
+	generator := namegenerator.NewNameGenerator(seed)
 	name := generator.Generate()
 	return fmt.Sprintf("anonymous-%s", name)
 }
@@ -143,6 +146,21 @@ func extractNameUnverified(jwtValue string) (string, error) {
 	}
 }
 
+func seedFromStringHash(value string) int64 {
+	h := sha256.New()
+	h.Write([]byte(value))
+
+	hash := h.Sum(nil)
+	return int64(binary.BigEndian.Uint64(hash[:8]))
+}
+
+func anonymizeName(seed, value string) string {
+	rngSeed := seedFromStringHash(seed + value)
+	generator := namegenerator.NewNameGenerator(rngSeed)
+	name := generator.Generate()
+	return fmt.Sprintf("anonymous-%s", name)
+}
+
 func serveWs(broker *Broker, w http.ResponseWriter, r *http.Request) {
 	username, err := parseJwtUsername(r.Header.Get("X-Forwarded-Access-Token"))
 	if err != nil {
@@ -154,6 +172,9 @@ func serveWs(broker *Broker, w http.ResponseWriter, r *http.Request) {
 			log.Println(err)
 		}
 		return
+	}
+	if *anonymizeSeed != "" {
+		username = anonymizeName(*anonymizeSeed, username)
 	}
 
 	conn, err := upgrader.Upgrade(w, r, nil)
