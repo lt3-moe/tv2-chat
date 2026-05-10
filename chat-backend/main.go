@@ -8,6 +8,7 @@ import (
 
 var staticDir = flag.String("static", "./static", "where to fetch the site static content from")
 var allowAnonymous = flag.Bool("allow-anonymous", false, "enable to allow anonymous users")
+var scrollbackSize = flag.Int("scrollback-size", 100, "number of messages to keep in memory for reconnecting clients")
 
 func main() {
 	flag.Parse()
@@ -18,7 +19,7 @@ func main() {
 	log.Println("will serve static content from ", *staticDir)
 	http.Handle("/", fs)
 
-	broker := newBroker()
+	broker := newBroker(*scrollbackSize)
 	go broker.Run()
 
 	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {

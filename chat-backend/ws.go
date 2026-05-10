@@ -135,7 +135,7 @@ func serveWs(broker *Broker, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	client := &Client{broker: broker, conn: conn, username: username, send: make(chan Message, 100)}
+	client := &Client{broker: broker, conn: conn, username: username, send: make(chan Message, *scrollbackSize)}
 	broker.Connect(client)
 
 	go client.handleIncoming()
