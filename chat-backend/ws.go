@@ -9,7 +9,6 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 	"github.com/goombaio/namegenerator"
 	"github.com/gorilla/websocket"
@@ -113,37 +112,6 @@ func getRandomUsername() string {
 	generator := namegenerator.NewNameGenerator(seed)
 	name := generator.Generate()
 	return fmt.Sprintf("anonymous-%s", name)
-}
-
-func parseJwtUsername(value string) (string, error) {
-	if value == "" {
-		if *allowAnonymous {
-			return getRandomUsername(), nil
-		} else {
-			return "", fmt.Errorf("value is missing, token must be provided via X-Forwarded-Access-Token")
-		}
-	}
-	return extractNameUnverified(value)
-}
-
-type Claims struct {
-	Name string `json:"name"`
-	jwt.RegisteredClaims
-}
-
-func extractNameUnverified(jwtValue string) (string, error) {
-	claims := Claims{}
-	token, _, err := jwt.NewParser().ParseUnverified(jwtValue, claims)
-	if err != nil {
-		log.Printf("error parsing jwt: %s", err.Error())
-		return "", fmt.Errorf("failed to parse jwt claims")
-	}
-
-	if castedClaims, ok := token.Claims.(*Claims); ok {
-		return castedClaims.Name, nil
-	} else {
-		return "", fmt.Errorf("failed to extract name claim from jwt")
-	}
 }
 
 func seedFromStringHash(value string) int64 {
