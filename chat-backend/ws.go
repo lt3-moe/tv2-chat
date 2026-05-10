@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/0x6flab/namegenerator"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 )
@@ -116,16 +117,36 @@ func parseJwtUsername(value string) (string, error) {
 		if *allowAnonymous {
 			return getRandomUsername(), nil
 		} else {
-			return "", fmt.Errorf("username must be provided via X-Forwarded-Preferred-Username")
+			return "", fmt.Errorf("value is missing, token must be provided via X-Forwarded-Access-Token")
 		}
 	}
-	return value, nil
+	return extractNameUnverified(value)
+}
+
+type Claims struct {
+	Name string `json:"name"`
+	jwt.RegisteredClaims
+}
+
+func extractNameUnverified(jwtValue string) (string, error) {
+	claims := Claims{}
+	token, _, err := jwt.NewParser().ParseUnverified(jwtValue, claims)
+	if err != nil {
+		log.Printf("error parsing jwt: %s", err.Error())
+		return "", fmt.Errorf("failed to parse jwt claims")
+	}
+
+	if castedClaims, ok := token.Claims.(*Claims); ok {
+		return castedClaims.Name, nil
+	} else {
+		return "", fmt.Errorf("failed to extract name claim from jwt")
+	}
 }
 
 func serveWs(broker *Broker, w http.ResponseWriter, r *http.Request) {
-	username, err := parseJwtUsername(r.Header.Get("X-Forwarded-Preferred-Username"))
+	username, err := parseJwtUsername(r.Header.Get("X-Forwarded-Access-Token"))
 	if err != nil {
-		log.Printf("error parsing jwt: %s", err)
+		log.Printf("error parsing jwt from header: %s", err)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
 		err := json.NewEncoder(w).Encode(ErrorResponse{Message: err.Error()})
@@ -133,7 +154,6 @@ func serveWs(broker *Broker, w http.ResponseWriter, r *http.Request) {
 			log.Println(err)
 		}
 		return
-
 	}
 
 	conn, err := upgrader.Upgrade(w, r, nil)

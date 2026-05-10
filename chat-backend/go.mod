@@ -8,3 +8,5 @@ require (
 	github.com/0x6flab/namegenerator v1.4.0
 	github.com/google/uuid v1.6.0
 )
+
+require github.com/golang-jwt/jwt/v5 v5.3.1 // indirect
