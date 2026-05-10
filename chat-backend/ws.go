@@ -84,7 +84,7 @@ func (c *Client) handleOutgoing() {
 				return
 			}
 
-			w.Write(message.SerBytes())
+			w.Write(SerWithTag(message))
 			if err := w.Close(); err != nil {
 				return
 			}

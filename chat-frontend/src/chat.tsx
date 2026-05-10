@@ -11,11 +11,14 @@ import {
 import { useEffect, useRef, useState } from "react";
 
 interface UserMessage {
+  kind: "newMessage";
   text: string;
   author: string;
   timestamp: number;
   id: string;
 }
+
+type AnyWsMessage = UserMessage;
 
 interface MessageMerged extends UserMessage {
   showSender: boolean;
@@ -127,8 +130,10 @@ export default function Chat() {
     ws.current = socket;
 
     function onMessage(this: WebSocket, ev: MessageEvent<any>) {
-      const message: UserMessage = JSON.parse(ev.data);
-      setState((state) => new Map([...state, [message.id, message]]));
+      const message: AnyWsMessage = JSON.parse(ev.data);
+      if (message.kind == "newMessage") {
+        setState((state) => new Map([...state, [message.id, message]]));
+      }
     }
 
     socket.addEventListener("message", onMessage);
