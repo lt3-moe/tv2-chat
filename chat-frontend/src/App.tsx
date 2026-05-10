@@ -11,9 +11,17 @@ export default function App() {
     new Map(),
   );
 
+  const [viewers, setViewers] = useState<number | undefined>(undefined);
+
   const onMessage = useCallback((message: AnyWsMessage) => {
-    if (message.kind == "newMessage") {
-      setChatState((state) => new Map([...state, [message.id, message]]));
+    switch (message.kind) {
+      case "newMessage": {
+        setChatState((state) => new Map([...state, [message.id, message]]));
+        break;
+      }
+      case "viewCount": {
+        setViewers(message.count);
+      }
     }
   }, []);
 
@@ -36,6 +44,7 @@ export default function App() {
         }}
       >
         <Player />
+        Current viewers: {viewers !== undefined ? viewers : "???"}
       </div>
       <div
         style={{
