@@ -8,22 +8,8 @@ import {
   Message,
   MessageInput,
 } from "@chatscope/chat-ui-kit-react";
-import { useEffect, useRef, useState } from "react";
-
-interface UserMessage {
-  kind: "newMessage";
-  text: string;
-  author: string;
-  timestamp: number;
-  id: string;
-}
-
-interface ViewCount {
-  kind: "viewCount";
-  count: number;
-}
-
-type AnyWsMessage = UserMessage | ViewCount;
+import { useCallback, useState } from "react";
+import useWebsocket, { type AnyWsMessage, type UserMessage } from "./ws";
 
 interface MessageMerged extends UserMessage {
   showSender: boolean;
@@ -112,10 +98,6 @@ const ChatUI = ({
   );
 };
 
-function getWsUrl(): string {
-  return `${location.protocol == "http:" ? "ws" : "wss"}://${location.host}/ws`;
-}
-
 function orderByTimestamp(
   messages: ReadonlyMap<string, UserMessage>,
 ): UserMessage[] {
@@ -128,25 +110,14 @@ export default function Chat() {
   const [state, setState] = useState<ReadonlyMap<string, UserMessage>>(
     new Map(),
   );
-  const ws = useRef<WebSocket | null>(null);
 
-  useEffect(() => {
-    const socket = new WebSocket(getWsUrl());
-    ws.current = socket;
-
-    function onMessage(this: WebSocket, ev: MessageEvent<any>) {
-      const message: AnyWsMessage = JSON.parse(ev.data);
-      if (message.kind == "newMessage") {
-        setState((state) => new Map([...state, [message.id, message]]));
-      }
+  const onMessage = useCallback((message: AnyWsMessage) => {
+    if (message.kind == "newMessage") {
+      setState((state) => new Map([...state, [message.id, message]]));
     }
-
-    socket.addEventListener("message", onMessage);
-
-    return () => {
-      socket.close();
-    };
   }, []);
+
+  const ws = useWebsocket(onMessage);
 
   return (
     <ChatUI
