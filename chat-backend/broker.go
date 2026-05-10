@@ -15,7 +15,7 @@ type Broker struct {
 func newBroker(scrollback int) *Broker {
 	return &Broker{
 		clients:    make(map[*Client]Unit),
-		broadcast:  make(chan AnyMessage),
+		broadcast:  make(chan AnyMessage, 100),
 		register:   make(chan *Client),
 		unregister: make(chan *Client),
 		scrollback: make([]TextMessage, 0, scrollback),
@@ -53,11 +53,13 @@ func (broker *Broker) RunBroadcasts() {
 		case client := <-broker.register:
 			broker.clients[client] = Unit{}
 			broker.dumpScrollback(client.send)
+			broker.broadcast <- ViewCount{Count: len(broker.clients)}
 		case client := <-broker.unregister:
 			if _, ok := broker.clients[client]; ok {
 				delete(broker.clients, client)
 				close(client.send)
 			}
+			broker.broadcast <- ViewCount{Count: len(broker.clients)}
 		case newMessage := <-broker.broadcast:
 			if msg, ok := newMessage.(TextMessage); ok {
 				broker.addToScrollback(msg)
