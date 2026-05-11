@@ -21,6 +21,18 @@ function DarkMode({
   );
 }
 
+function TitleBox(): React.ReactElement {
+  const logo = "/image.png";
+  return (
+    <div style={{ display: "flex", justifyContent: "center" }}>
+      <div className="mainTitle">
+        <img className="logo" src={logo} alt="Меньше чем три"></img>
+        <h1 className="titleText">PARASOCIAL CINEMA</h1>
+      </div>
+    </div>
+  );
+}
+
 export default function App() {
   const [chatState, setChatState] = useStickyState<
     ReadonlyMap<string, UserMessage>
@@ -54,7 +66,6 @@ export default function App() {
   );
 
   const ws = useWebsocket(onMessage);
-  const logo = "/image.png";
   return (
     <div
       style={{
@@ -64,12 +75,7 @@ export default function App() {
       }}
       className={isDarkMode ? "dark-theme-colors" : "light-theme-colors"}
     >
-      <div style={{ display: "flex", justifyContent: "center" }}>
-        <div className="mainTitle">
-          <img className="logo" src={logo} alt="Меньше чем три"></img>
-          <h1 className="titleText">PARASOCIAL CINEMA</h1>
-        </div>
-      </div>
+      <TitleBox />
       <div className="PlayerBox">
         <div className="videoPlayerDiv">
           <Player />
