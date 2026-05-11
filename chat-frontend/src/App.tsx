@@ -7,17 +7,23 @@ import type { AnyWsMessage, UserMessage } from "./ws";
 import useWebsocket from "./ws";
 import { useStickyState } from "./util";
 
-function DarkMode({
-  state,
-  setState,
+import dark_icon from "./assets/dark_mode_icon.svg";
+import light_icon from "./assets/light_mode_icon.svg";
+
+function DarkModeSwitch({
+  isDark,
+  onClick,
 }: {
-  state: boolean;
-  setState: (arg: boolean) => void;
+  isDark: boolean;
+  onClick: () => void;
 }) {
   return (
-    <button onClick={() => setState(!state)}>
-      Switch to {state ? "light" : "dark "} mode
-    </button>
+    <img
+      src={isDark ? light_icon : dark_icon}
+      width="48px"
+      height="auto"
+      onClick={onClick}
+    />
   );
 }
 
@@ -87,9 +93,9 @@ export default function App() {
               <p>Current viewers: {viewers !== undefined ? viewers : "???"}</p>
             </div>
           </div>
-          <DarkMode
-            state={isDarkMode}
-            setState={(val: boolean) => setDarkMode(val)}
+          <DarkModeSwitch
+            isDark={isDarkMode}
+            onClick={() => setDarkMode(!isDarkMode)}
           />
         </div>
 
