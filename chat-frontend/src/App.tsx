@@ -31,7 +31,10 @@ export default function App() {
     deserialize: (value) => new Map(JSON.parse(value)),
   }); // TODO: limit depth of storage
 
-  const [isDarkMode, setDarkMode] = useState(false);
+  const [isDarkMode, setDarkMode] = useStickyState({
+    defaultValue: false,
+    storageKey: "isDarkModeEnabled",
+  });
 
   const [viewers, setViewers] = useState<number | undefined>(undefined);
 
