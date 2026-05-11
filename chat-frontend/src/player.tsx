@@ -2,6 +2,8 @@ import type React from "react";
 import { useEffect, useRef } from "react";
 import { MediaMTXWebRTCReader } from "./reader.js";
 
+import idle_video from "./assets/idle.mp4";
+
 export default function Player(): React.ReactElement {
   const reader = useRef<MediaMTXWebRTCReader>(null);
   const video = useRef<HTMLVideoElement>(null);
@@ -33,14 +35,14 @@ export default function Player(): React.ReactElement {
 
   return (
     <video
-      ref={video}
+      src={idle_video}
+      loop
+      className="videoplayer"
       id="myvideo"
-      controls
+      ref={video}
       autoPlay
       playsInline
       muted
-      width="100%"
-      height="100%"
-    ></video>
+    />
   );
 }

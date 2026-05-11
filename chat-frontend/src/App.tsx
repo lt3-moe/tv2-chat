@@ -7,6 +7,38 @@ import type { AnyWsMessage, UserMessage } from "./ws";
 import useWebsocket from "./ws";
 import { useStickyState } from "./util";
 
+import dark_icon from "./assets/dark_mode_icon.svg";
+import light_icon from "./assets/light_mode_icon.svg";
+import lt3_logo from "./assets/image.png";
+
+function DarkModeSwitch({
+  isDark,
+  onClick,
+}: {
+  isDark: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <img
+      src={isDark ? light_icon : dark_icon}
+      width="48px"
+      height="auto"
+      onClick={onClick}
+    />
+  );
+}
+
+function TitleBox(): React.ReactElement {
+  return (
+    <div style={{ display: "flex", justifyContent: "center" }}>
+      <div className="mainTitle">
+        <img className="logo" src={lt3_logo} alt="Меньше чем три"></img>
+        <h1 className="titleText">PARASOCIAL CINEMA</h1>
+      </div>
+    </div>
+  );
+}
+
 export default function App() {
   const [chatState, setChatState] = useStickyState<
     ReadonlyMap<string, UserMessage>
@@ -16,7 +48,11 @@ export default function App() {
     serialize: (map) => JSON.stringify([...map.entries()]),
     deserialize: (value) => new Map(JSON.parse(value)),
   }); // TODO: limit depth of storage
-  console.log(chatState);
+
+  const [isDarkMode, setDarkMode] = useStickyState({
+    defaultValue: false,
+    storageKey: "isDarkModeEnabled",
+  });
 
   const [viewers, setViewers] = useState<number | undefined>(undefined);
 
@@ -36,7 +72,6 @@ export default function App() {
   );
 
   const ws = useWebsocket(onMessage);
-
   return (
     <div
       style={{
@@ -44,30 +79,32 @@ export default function App() {
         height: "100%",
         overflow: "hidden",
       }}
+      className={isDarkMode ? "dark-theme-colors" : "light-theme-colors"}
     >
-      <div
-        style={{
-          width: "80%",
-          aspectRatio: 16 / 9,
-          float: "left",
-          marginRight: "10px",
-        }}
-      >
-        <Player />
-        Current viewers: {viewers !== undefined ? viewers : "???"}
-      </div>
-      <div
-        style={{
-          position: "relative",
-          display: "grid",
-          height: "97vh",
-          width: "auto",
-        }}
-      >
-        <Chat
-          messageState={chatState}
-          onSend={(text) => ws.current?.send(text)}
-        />
+      <TitleBox />
+      <div className="PlayerBox">
+        <div className="videoPlayerDiv">
+          <Player />
+          <div style={{ display: "flex" }}>
+            <div className="streamTitle">
+              <p>title</p>
+            </div>
+            <div className="viewerCount">
+              <p>Current viewers: {viewers !== undefined ? viewers : "???"}</p>
+            </div>
+          </div>
+          <DarkModeSwitch
+            isDark={isDarkMode}
+            onClick={() => setDarkMode(!isDarkMode)}
+          />
+        </div>
+
+        <div className="mainChat">
+          <Chat
+            messageState={chatState}
+            onSend={(text) => ws.current?.send(text)}
+          />
+        </div>
       </div>
     </div>
   );
