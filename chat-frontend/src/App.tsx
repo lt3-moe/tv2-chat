@@ -5,25 +5,35 @@ import Player from "./player";
 import { useCallback, useState } from "react";
 import type { AnyWsMessage, UserMessage } from "./ws";
 import useWebsocket from "./ws";
+import { useStickyState } from "./util";
 
 export default function App() {
-  const [chatState, setChatState] = useState<ReadonlyMap<string, UserMessage>>(
-    new Map(),
-  );
+  const [chatState, setChatState] = useStickyState<
+    ReadonlyMap<string, UserMessage>
+  >({
+    defaultValue: new Map(),
+    storageKey: "chatHistory",
+    serialize: (map) => JSON.stringify([...map.entries()]),
+    deserialize: (value) => new Map(JSON.parse(value)),
+  }); // TODO: limit depth of storage
+  console.log(chatState);
 
   const [viewers, setViewers] = useState<number | undefined>(undefined);
 
-  const onMessage = useCallback((message: AnyWsMessage) => {
-    switch (message.kind) {
-      case "newMessage": {
-        setChatState((state) => new Map([...state, [message.id, message]]));
-        break;
+  const onMessage = useCallback(
+    (message: AnyWsMessage) => {
+      switch (message.kind) {
+        case "newMessage": {
+          setChatState((state) => new Map([...state, [message.id, message]]));
+          break;
+        }
+        case "viewCount": {
+          setViewers(message.count);
+        }
       }
-      case "viewCount": {
-        setViewers(message.count);
-      }
-    }
-  }, []);
+    },
+    [setChatState],
+  );
 
   const ws = useWebsocket(onMessage);
 
