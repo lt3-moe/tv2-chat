@@ -6,10 +6,30 @@ import { useCallback, useState } from "react";
 import type { AnyWsMessage, UserMessage } from "./ws";
 import useWebsocket from "./ws";
 
+function DarkMode() {
+  const [isDarkMode, setDarkMode] = useState(0);
+  function click() {
+    setDarkMode(isDarkMode == 1 ? 0 : 1);
+    if(isDarkMode){
+      document.body.classList.add("dark");
+    }else{
+      document.body.classList.remove("dark");
+
+    }
+  }
+  return (
+    <button onClick={click}>
+      Switch to {isDarkMode == 1 ? "light" : "dark "} mode
+    </button>
+  );
+}
+
 export default function App() {
   const [chatState, setChatState] = useState<ReadonlyMap<string, UserMessage>>(
     new Map(),
   );
+
+
 
   const [viewers, setViewers] = useState<number | undefined>(undefined);
 
@@ -26,7 +46,7 @@ export default function App() {
   }, []);
 
   const ws = useWebsocket(onMessage);
-
+  const logo = "/image.png";
   return (
     <div
       style={{
@@ -35,30 +55,37 @@ export default function App() {
         overflow: "hidden",
       }}
     >
-      <div
-        style={{
-          width: "80%",
-          aspectRatio: 16 / 9,
-          float: "left",
-          marginRight: "10px",
-        }}
-      >
-        <Player />
-        Current viewers: {viewers !== undefined ? viewers : "???"}
+      <div style={{ display: "flex", justifyContent: "center" }}>
+        <div className="mainTitle">
+          <img className="logo" src={logo} alt="Меньше чем три"></img>
+          <h1 className="titleText">PARASOCIAL CINEMA</h1>
+        </div>
       </div>
-      <div
-        style={{
-          position: "relative",
-          display: "grid",
-          height: "97vh",
-          width: "auto",
-        }}
-      >
-        <Chat
-          messageState={chatState}
-          onSend={(text) => ws.current?.send(text)}
-        />
+      <div className="PlayerBox">
+        <div className="videoPlayerDiv">
+          <Player />
+          <div style={{ display: "flex", }}>
+            <div className="streamTitle">
+              <p>title</p>
+            </div>
+            <div className="viewerCount">
+              <p>Current viewers: {viewers !== undefined ? viewers : "???"}</p>
+            </div>
+          </div>
+          <DarkMode />
+        </div>
+
+
+        <div className="mainChat">
+          <Chat
+            messageState={chatState}
+            onSend={(text) => ws.current?.send(text)}
+          />
+
+        </div>
       </div>
+
+
     </div>
   );
 }

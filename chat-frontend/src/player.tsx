@@ -31,16 +31,16 @@ export default function Player(): React.ReactElement {
     };
   }, []);
 
-  return (
-    <video
-      ref={video}
-      id="myvideo"
-      controls
-      autoPlay
-      playsInline
-      muted
-      width="100%"
-      height="100%"
-    ></video>
-  );
+return (
+  <video
+  src="/idle.mp4"
+  loop  
+    className="videoplayer"
+    id="myvideo"
+    ref={video}
+    autoPlay
+    playsInline
+    muted
+  />
+);  
 }
