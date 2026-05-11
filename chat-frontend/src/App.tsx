@@ -7,20 +7,16 @@ import type { AnyWsMessage, UserMessage } from "./ws";
 import useWebsocket from "./ws";
 import { useStickyState } from "./util";
 
-function DarkMode() {
-  const [isDarkMode, setDarkMode] = useState(0);
-  function click() {
-    setDarkMode(isDarkMode == 1 ? 0 : 1);
-    if(isDarkMode){
-      document.body.classList.add("dark");
-    }else{
-      document.body.classList.remove("dark");
-
-    }
-  }
+function DarkMode({
+  state,
+  setState,
+}: {
+  state: boolean;
+  setState: (arg: boolean) => void;
+}) {
   return (
-    <button onClick={click}>
-      Switch to {isDarkMode == 1 ? "light" : "dark "} mode
+    <button onClick={() => setState(!state)}>
+      Switch to {state ? "light" : "dark "} mode
     </button>
   );
 }
@@ -34,9 +30,8 @@ export default function App() {
     serialize: (map) => JSON.stringify([...map.entries()]),
     deserialize: (value) => new Map(JSON.parse(value)),
   }); // TODO: limit depth of storage
-  console.log(chatState);
 
-
+  const [isDarkMode, setDarkMode] = useState(false);
 
   const [viewers, setViewers] = useState<number | undefined>(undefined);
 
@@ -64,6 +59,7 @@ export default function App() {
         height: "100%",
         overflow: "hidden",
       }}
+      className={isDarkMode ? "dark-theme-colors" : "light-theme-colors"}
     >
       <div style={{ display: "flex", justifyContent: "center" }}>
         <div className="mainTitle">
@@ -74,7 +70,7 @@ export default function App() {
       <div className="PlayerBox">
         <div className="videoPlayerDiv">
           <Player />
-          <div style={{ display: "flex", }}>
+          <div style={{ display: "flex" }}>
             <div className="streamTitle">
               <p>title</p>
             </div>
@@ -82,20 +78,19 @@ export default function App() {
               <p>Current viewers: {viewers !== undefined ? viewers : "???"}</p>
             </div>
           </div>
-          <DarkMode />
+          <DarkMode
+            state={isDarkMode}
+            setState={(val: boolean) => setDarkMode(val)}
+          />
         </div>
-
 
         <div className="mainChat">
           <Chat
             messageState={chatState}
             onSend={(text) => ws.current?.send(text)}
           />
-
         </div>
       </div>
-
-
     </div>
   );
 }

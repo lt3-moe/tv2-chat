@@ -1,4 +1,4 @@
-:root {
+.light-theme-colors {
     --bg-color: #ffffff;
     --text-color: #111111;
 
@@ -7,9 +7,10 @@
 
     --main-color: #000000;
     --accent-color: #3b82f6;
+    color: var(--text-color);
 }
 
-.dark {
+.dark-theme-colors {
     --bg-color: #0f0f0f;
     --text-color: #eaeaea;
 
@@ -18,6 +19,7 @@
 
     --main-color: #ffffff;
     --accent-color: #60a5fa;
+    color: var(--text-color);
 }
 @font-face {
     font-family: "Consolas";
@@ -29,7 +31,6 @@ body,
     width: 100%;
     height: 100%;
     margin: 0;
-    color: var(--text-color);
 }
 
 body {
