@@ -7,7 +7,10 @@ export default defineConfig({
   server: {
     proxy: {
       '/webrtc-stream': 'http://localhost:8889',
-      '/ws': 'http://localhost:8000'
+      '/ws': {
+        target: 'http://localhost:8000',
+        ws: true,
+      }
     }
   }
 })
