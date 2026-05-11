@@ -9,6 +9,7 @@ import { useStickyState } from "./util";
 
 import dark_icon from "./assets/dark_mode_icon.svg";
 import light_icon from "./assets/light_mode_icon.svg";
+import lt3_logo from "./assets/image.png";
 
 function DarkModeSwitch({
   isDark,
@@ -28,11 +29,10 @@ function DarkModeSwitch({
 }
 
 function TitleBox(): React.ReactElement {
-  const logo = "/image.png";
   return (
     <div style={{ display: "flex", justifyContent: "center" }}>
       <div className="mainTitle">
-        <img className="logo" src={logo} alt="Меньше чем три"></img>
+        <img className="logo" src={lt3_logo} alt="Меньше чем три"></img>
         <h1 className="titleText">PARASOCIAL CINEMA</h1>
       </div>
     </div>

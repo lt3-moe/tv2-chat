@@ -2,6 +2,8 @@ import type React from "react";
 import { useEffect, useRef } from "react";
 import { MediaMTXWebRTCReader } from "./reader.js";
 
+import idle_video from "./assets/idle.mp4";
+
 export default function Player(): React.ReactElement {
   const reader = useRef<MediaMTXWebRTCReader>(null);
   const video = useRef<HTMLVideoElement>(null);
@@ -33,7 +35,7 @@ export default function Player(): React.ReactElement {
 
   return (
     <video
-      src="/idle.mp4"
+      src={idle_video}
       loop
       className="videoplayer"
       id="myvideo"
