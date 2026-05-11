@@ -26,10 +26,13 @@ pprof: false
 playback: false
 
 
-rtmp: false
+
 hls: false
 srt: false
 rtsp: false
+
+rtmp: true
+rtmpAddress: :1935
 
 webrtc: true
 webrtcAddress: ":8889"
