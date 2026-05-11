@@ -1,5 +1,5 @@
 import type React from "react";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { MediaMTXWebRTCReader } from "./reader.js";
 
 import idle_video from "./assets/idle.mp4";
@@ -7,6 +7,9 @@ import idle_video from "./assets/idle.mp4";
 export default function Player(): React.ReactElement {
   const reader = useRef<MediaMTXWebRTCReader>(null);
   const video = useRef<HTMLVideoElement>(null);
+
+  const [controlsEnabled, setControlsEnabled] = useState(false);
+
   useEffect(() => {
     reader.current = new MediaMTXWebRTCReader({
       url: `${window.location.origin}/webrtc-stream/whep`,
@@ -16,6 +19,7 @@ export default function Player(): React.ReactElement {
       onTrack: (evt) => {
         if (video.current !== null) {
           video.current.srcObject = evt.streams[0];
+          setControlsEnabled(true);
         }
       },
       onDataChannel: (evt) => {
@@ -36,6 +40,7 @@ export default function Player(): React.ReactElement {
   return (
     <video
       src={idle_video}
+      controls={controlsEnabled}
       loop
       className="videoplayer"
       id="myvideo"
