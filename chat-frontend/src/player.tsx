@@ -3,17 +3,26 @@ import { useEffect, useRef, useState } from "react";
 import { MediaMTXWebRTCReader } from "./reader.js";
 
 import idle_video from "./assets/idle.mp4";
-import { createPlayer, videoFeatures } from "@videojs/react";
+import { createPlayer } from "@videojs/react";
+import * as videoJS from "@videojs/react";
 import { MinimalVideoSkin, Video } from "@videojs/react/video";
 import "@videojs/react/video/minimal-skin.css";
 
-const Player = createPlayer({ features: videoFeatures });
+const Player = createPlayer({
+  features: [
+    videoJS.controlsFeature,
+    videoJS.playbackFeature,
+    videoJS.volumeFeature,
+    videoJS.fullscreenFeature,
+  ],
+});
 
 export default function PlayerWithOverlay(): React.ReactElement {
   const reader = useRef<MediaMTXWebRTCReader>(null);
   const video = useRef<HTMLVideoElement>(null);
 
   const [controlsEnabled, setControlsEnabled] = useState(false);
+  const [idleVideoUsed, setIdleVideoUsed] = useState(true);
 
   useEffect(() => {
     reader.current = new MediaMTXWebRTCReader({
@@ -24,6 +33,7 @@ export default function PlayerWithOverlay(): React.ReactElement {
       onTrack: (evt) => {
         if (video.current !== null) {
           video.current.srcObject = evt.streams[0];
+          setIdleVideoUsed(false);
           setControlsEnabled(true);
         }
       },
@@ -44,8 +54,23 @@ export default function PlayerWithOverlay(): React.ReactElement {
 
   return (
     <Player.Provider>
-      <MinimalVideoSkin>
-        <Video src={idle_video} autoPlay loop playsInline muted />
+      <MinimalVideoSkin
+        style={{
+          color: "transparent",
+        }}
+      >
+        <Video
+          src={idleVideoUsed ? idle_video : undefined} // replaced via srcObject during streams
+          autoPlay
+          loop
+          playsInline
+          muted
+          ref={video}
+          style={{
+            width: "100%",
+            aspectRatio: "16/9",
+          }}
+        />
       </MinimalVideoSkin>
     </Player.Provider>
   );
