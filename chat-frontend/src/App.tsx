@@ -1,7 +1,7 @@
 import "@chatscope/chat-ui-kit-styles/dist/default/styles.min.css";
 import "./App.css";
 import Chat from "./chat";
-import Player from "./player";
+import PlayerWithOverlay from "./player";
 import { useCallback, useState } from "react";
 import type { AnyWsMessage, UserMessage } from "./ws";
 import useWebsocket from "./ws";
@@ -84,7 +84,7 @@ export default function App() {
       <TitleBox />
       <div className="PlayerBox">
         <div className="videoPlayerDiv">
-          <Player />
+          <PlayerWithOverlay />
           <div style={{ display: "flex" }}>
             <div className="streamTitle">
               <p>title</p>

@@ -3,8 +3,13 @@ import { useEffect, useRef, useState } from "react";
 import { MediaMTXWebRTCReader } from "./reader.js";
 
 import idle_video from "./assets/idle.mp4";
+import { createPlayer, videoFeatures } from "@videojs/react";
+import { MinimalVideoSkin, Video } from "@videojs/react/video";
+import "@videojs/react/video/minimal-skin.css";
 
-export default function Player(): React.ReactElement {
+const Player = createPlayer({ features: videoFeatures });
+
+export default function PlayerWithOverlay(): React.ReactElement {
   const reader = useRef<MediaMTXWebRTCReader>(null);
   const video = useRef<HTMLVideoElement>(null);
 
@@ -38,16 +43,10 @@ export default function Player(): React.ReactElement {
   }, []);
 
   return (
-    <video
-      src={idle_video}
-      controls={controlsEnabled}
-      loop
-      className="videoplayer"
-      id="myvideo"
-      ref={video}
-      autoPlay
-      playsInline
-      muted
-    />
+    <Player.Provider>
+      <MinimalVideoSkin>
+        <Video src={idle_video} autoPlay loop playsInline muted />
+      </MinimalVideoSkin>
+    </Player.Provider>
   );
 }
