@@ -2,14 +2,16 @@ import "@chatscope/chat-ui-kit-styles/dist/default/styles.min.css";
 import "./App.css";
 import Chat from "./chat";
 import Player from "./player";
-import { useCallback, useState } from "react";
+import { useCallback, useState, useRef } from "react";
 import type { AnyWsMessage, UserMessage } from "./ws";
 import useWebsocket from "./ws";
 import { useStickyState } from "./util";
+import COS, { type COSHandle } from "./ChatOverScreen";
 
 import dark_icon from "./assets/dark_mode_icon.svg";
 import light_icon from "./assets/light_mode_icon.svg";
 import lt3_logo from "./assets/image.png";
+
 
 function DarkModeSwitch({
   isDark,
@@ -27,6 +29,7 @@ function DarkModeSwitch({
     />
   );
 }
+
 
 function TitleBox(): React.ReactElement {
   return (
@@ -55,12 +58,16 @@ export default function App() {
   });
 
   const [viewers, setViewers] = useState<number | undefined>(undefined);
+  const cosRef = useRef<COSHandle>(null);
 
   const onMessage = useCallback(
     (message: AnyWsMessage) => {
       switch (message.kind) {
         case "newMessage": {
           setChatState((state) => new Map([...state, [message.id, message]]));
+          if (message.timestamp + 1000 > Date.now()) { // prevent old messages from appearing on screen
+            cosRef.current?.addLabel(message.text, /*Maybe pull user color */`hsl(${Math.random() * 360}, 70%, 60%)`);
+          };
           break;
         }
         case "viewCount": {
@@ -70,7 +77,6 @@ export default function App() {
     },
     [setChatState],
   );
-
   const ws = useWebsocket(onMessage);
   return (
     <div
@@ -84,7 +90,10 @@ export default function App() {
       <TitleBox />
       <div className="PlayerBox">
         <div className="videoPlayerDiv">
-          <Player />
+          <div className="COS_Subdiv" >
+            <Player />
+            <COS ref={cosRef} />
+          </div>
           <div style={{ display: "flex" }}>
             <div className="streamTitle">
               <p>title</p>
