@@ -19,10 +19,9 @@ const Player = createPlayer({
 
 export default function PlayerWithOverlay(): React.ReactElement {
   const reader = useRef<MediaMTXWebRTCReader>(null);
-  const video = useRef<HTMLVideoElement>(null);
-
-  const [controlsEnabled, setControlsEnabled] = useState(false);
-  const [idleVideoUsed, setIdleVideoUsed] = useState(true);
+  const [videoSource, setVideoSource] = useState<MediaStream | string>(
+    idle_video,
+  );
 
   useEffect(() => {
     reader.current = new MediaMTXWebRTCReader({
@@ -31,11 +30,7 @@ export default function PlayerWithOverlay(): React.ReactElement {
         console.error(err);
       },
       onTrack: (evt) => {
-        if (video.current !== null) {
-          video.current.srcObject = evt.streams[0];
-          setIdleVideoUsed(false);
-          setControlsEnabled(true);
-        }
+        setVideoSource(evt.streams[0]);
       },
       onDataChannel: (evt) => {
         evt.channel.binaryType = "arraybuffer";
@@ -54,18 +49,18 @@ export default function PlayerWithOverlay(): React.ReactElement {
 
   return (
     <Player.Provider>
-      <MinimalVideoSkin
-        style={{
-          color: "transparent",
-        }}
-      >
+      <MinimalVideoSkin>
         <Video
-          src={idleVideoUsed ? idle_video : undefined} // replaced via srcObject during streams
+          src={typeof videoSource === "string" ? videoSource : undefined}
           autoPlay
           loop
           playsInline
           muted
-          ref={video}
+          ref={(ref) => {
+            if (ref && typeof videoSource !== "string") {
+              ref.srcObject = videoSource;
+            }
+          }}
           style={{
             width: "100%",
             aspectRatio: "16/9",
