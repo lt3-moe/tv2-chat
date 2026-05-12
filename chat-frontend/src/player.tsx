@@ -8,20 +8,22 @@ import * as videoJS from "@videojs/react";
 import { MinimalVideoSkin, Video } from "@videojs/react/video";
 import "@videojs/react/video/minimal-skin.css";
 
-const Player = createPlayer({
-  features: [
-    videoJS.controlsFeature,
-    videoJS.playbackFeature,
-    videoJS.volumeFeature,
-    videoJS.fullscreenFeature,
-  ],
-});
+const playerFeatures = [
+  videoJS.controlsFeature,
+  videoJS.playbackFeature,
+  videoJS.volumeFeature,
+  videoJS.fullscreenFeature,
+];
 
 export default function PlayerWithOverlay(): React.ReactElement {
   const reader = useRef<MediaMTXWebRTCReader>(null);
-  const [videoSource, setVideoSource] = useState<MediaStream | string>(
-    idle_video,
-  );
+  const [videoSource, setVideoSource] = useState<
+    { kind: "stream"; value: MediaStream } | { kind: "idle"; value: string }
+  >({ kind: "idle", value: idle_video });
+
+  const Player = createPlayer({
+    features: videoSource.kind === "stream" ? playerFeatures : [],
+  });
 
   useEffect(() => {
     reader.current = new MediaMTXWebRTCReader({
@@ -30,7 +32,7 @@ export default function PlayerWithOverlay(): React.ReactElement {
         console.error(err);
       },
       onTrack: (evt) => {
-        setVideoSource(evt.streams[0]);
+        setVideoSource({ kind: "stream", value: evt.streams[0] });
       },
       onDataChannel: (evt) => {
         evt.channel.binaryType = "arraybuffer";
@@ -51,14 +53,14 @@ export default function PlayerWithOverlay(): React.ReactElement {
     <Player.Provider>
       <MinimalVideoSkin>
         <Video
-          src={typeof videoSource === "string" ? videoSource : undefined}
+          src={videoSource.kind === "idle" ? videoSource.value : undefined}
           autoPlay
           loop
           playsInline
           muted
           ref={(ref) => {
-            if (ref && typeof videoSource !== "string") {
-              ref.srcObject = videoSource;
+            if (ref && videoSource.kind === "stream") {
+              ref.srcObject = videoSource.value;
             }
           }}
           style={{
