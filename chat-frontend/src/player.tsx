@@ -15,14 +15,47 @@ const playerFeatures = [
   videoJS.fullscreenFeature,
 ];
 
-export default function PlayerWithOverlay(): React.ReactElement {
-  const reader = useRef<MediaMTXWebRTCReader>(null);
-  const [videoSource, setVideoSource] = useState<
-    { kind: "stream"; value: MediaStream } | { kind: "idle"; value: string }
-  >({ kind: "idle", value: idle_video });
+type VideoSource =
+  | { kind: "stream"; value: MediaStream }
+  | { kind: "idle"; value: string };
 
+function VideoPlayer({
+  videoSource,
+}: {
+  videoSource: VideoSource;
+}): React.ReactElement {
   const Player = createPlayer({
     features: videoSource.kind === "stream" ? playerFeatures : [],
+  });
+  return (
+    <Player.Provider>
+      <MinimalVideoSkin>
+        <Video
+          src={videoSource.kind === "idle" ? videoSource.value : undefined}
+          autoPlay
+          loop
+          playsInline
+          muted
+          ref={(ref) => {
+            if (ref && videoSource.kind === "stream") {
+              ref.srcObject = videoSource.value;
+            }
+          }}
+          style={{
+            width: "100%",
+            aspectRatio: "16/9",
+          }}
+        />
+      </MinimalVideoSkin>
+    </Player.Provider>
+  );
+}
+
+export default function PlayerWithOverlay(): React.ReactElement {
+  const reader = useRef<MediaMTXWebRTCReader>(null);
+  const [videoSource, setVideoSource] = useState<VideoSource>({
+    kind: "idle",
+    value: idle_video,
   });
 
   useEffect(() => {
@@ -49,26 +82,5 @@ export default function PlayerWithOverlay(): React.ReactElement {
     };
   }, []);
 
-  return (
-    <Player.Provider>
-      <MinimalVideoSkin>
-        <Video
-          src={videoSource.kind === "idle" ? videoSource.value : undefined}
-          autoPlay
-          loop
-          playsInline
-          muted
-          ref={(ref) => {
-            if (ref && videoSource.kind === "stream") {
-              ref.srcObject = videoSource.value;
-            }
-          }}
-          style={{
-            width: "100%",
-            aspectRatio: "16/9",
-          }}
-        />
-      </MinimalVideoSkin>
-    </Player.Provider>
-  );
+  return <VideoPlayer videoSource={videoSource} />;
 }
