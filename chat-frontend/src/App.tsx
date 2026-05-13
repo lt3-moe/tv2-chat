@@ -11,6 +11,7 @@ import dark_icon from "./assets/dark_mode_icon.svg";
 import light_icon from "./assets/light_mode_icon.svg";
 import lt3_logo from "./assets/image.png";
 import chatPlayIcon from "./assets/chat_play_icon.svg";
+import { ReactSVG } from "react-svg";
 
 function DarkModeSwitch({
   isDark,
@@ -20,7 +21,7 @@ function DarkModeSwitch({
   onClick: () => void;
 }) {
   return (
-    <img
+    <ReactSVG
       src={isDark ? light_icon : dark_icon}
       width="48px"
       height="auto"
@@ -38,7 +39,7 @@ function ChatOverlaySwitch({
   onClick: () => void;
 }) {
   return (
-    <img
+    <ReactSVG
       src={chatPlayIcon}
       width="48px"
       height="auto"
