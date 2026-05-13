@@ -1,5 +1,5 @@
 import type React from "react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, memo } from "react";
 import { MediaMTXWebRTCReader } from "./reader.js";
 
 import idle_video from "./assets/idle.mp4";
@@ -19,11 +19,7 @@ type VideoSource =
   | { kind: "stream"; value: MediaStream }
   | { kind: "idle"; value: string };
 
-function VideoPlayer({
-  videoSource,
-}: {
-  videoSource: VideoSource;
-}): React.ReactElement {
+const VideoPlayer = memo(({ videoSource }: { videoSource: VideoSource }) => {
   const Player = createPlayer({
     features: videoSource.kind === "stream" ? playerFeatures : [],
   });
@@ -49,7 +45,7 @@ function VideoPlayer({
       </MinimalVideoSkin>
     </Player.Provider>
   );
-}
+});
 
 export default function PlayerWithOverlay(): React.ReactElement {
   const reader = useRef<MediaMTXWebRTCReader>(null);
