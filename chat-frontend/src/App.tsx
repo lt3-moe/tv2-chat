@@ -10,6 +10,7 @@ import { useStickyState } from "./util";
 import dark_icon from "./assets/dark_mode_icon.svg";
 import light_icon from "./assets/light_mode_icon.svg";
 import lt3_logo from "./assets/image.png";
+import chatPlayIcon from "./assets/chat_play_icon.svg";
 
 function DarkModeSwitch({
   isDark,
@@ -24,6 +25,26 @@ function DarkModeSwitch({
       width="48px"
       height="auto"
       onClick={onClick}
+    />
+  );
+}
+
+function ChatOverlaySwitch({
+  enabled,
+  onClick,
+}: {
+  enabled: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <img
+      src={chatPlayIcon}
+      width="48px"
+      height="auto"
+      onClick={onClick}
+      style={{
+        opacity: enabled ? 1 : 0.4,
+      }}
     />
   );
 }
@@ -52,6 +73,11 @@ export default function App() {
   const [isDarkMode, setDarkMode] = useStickyState({
     defaultValue: false,
     storageKey: "isDarkModeEnabled",
+  });
+
+  const [isChatOverlayEnabled, setChatOverlayEnabled] = useStickyState({
+    defaultValue: false,
+    storageKey: "isChatOverlayEnabled",
   });
 
   const [viewers, setViewers] = useState<number | undefined>(undefined);
@@ -84,7 +110,7 @@ export default function App() {
       <TitleBox />
       <div className="PlayerBox">
         <div className="videoPlayerDiv">
-          <PlayerWithOverlay />
+          <PlayerWithOverlay isChatOverlayEnabled={isChatOverlayEnabled} />
           <div style={{ display: "flex" }}>
             <div className="streamTitle">
               <p>title</p>
@@ -93,10 +119,16 @@ export default function App() {
               <p>Current viewers: {viewers !== undefined ? viewers : "???"}</p>
             </div>
           </div>
-          <DarkModeSwitch
-            isDark={isDarkMode}
-            onClick={() => setDarkMode(!isDarkMode)}
-          />
+          <div style={{ display: "flex" }}>
+            <DarkModeSwitch
+              isDark={isDarkMode}
+              onClick={() => setDarkMode(!isDarkMode)}
+            />
+            <ChatOverlaySwitch
+              enabled={isChatOverlayEnabled}
+              onClick={() => setChatOverlayEnabled(!isChatOverlayEnabled)}
+            />
+          </div>
         </div>
 
         <div className="mainChat">
