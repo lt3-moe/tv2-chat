@@ -24,6 +24,7 @@ function DarkModeSwitch({
       src={isDark ? light_icon : dark_icon}
       width="48px"
       height="auto"
+      title="Dark mode toggle"
       onClick={onClick}
     />
   );
@@ -41,6 +42,7 @@ function ChatOverlaySwitch({
       src={chatPlayIcon}
       width="48px"
       height="auto"
+      title="Chat overlay toggle"
       onClick={onClick}
       style={{
         opacity: enabled ? 1 : 0.4,
