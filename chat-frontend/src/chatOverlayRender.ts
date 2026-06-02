@@ -50,8 +50,6 @@ export function useChatOverlayRender(chatMessages: ReadonlyMap<string, ChatMessa
           console.log("render at", x, y);
         }
 
-        console.log("drawn canvas elements");
-
         animationRef.current = requestAnimationFrame(animate);
       }
 
