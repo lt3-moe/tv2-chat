@@ -8,7 +8,11 @@ import * as videoJS from "@videojs/react";
 import { MinimalVideoSkin, Video } from "@videojs/react/video";
 import "@videojs/react/video/minimal-skin.css";
 import { type ChatMessage } from "../chatMessages";
-import { useChatOverlayRender } from "../chatOverlayRender";
+import {
+  useChatOverlayRender,
+  CANVAS_HEIGHT,
+  CANVAS_WIDTH,
+} from "../chatOverlayRender";
 
 const playerFeatures = [
   videoJS.controlsFeature,
@@ -37,8 +41,8 @@ const Canvas = ({
         inset: 0,
         pointerEvents: "none",
       }}
-      width={1280}
-      height={720}
+      width={CANVAS_WIDTH}
+      height={CANVAS_HEIGHT}
     />
   );
 };

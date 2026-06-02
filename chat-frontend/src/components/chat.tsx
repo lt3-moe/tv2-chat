@@ -1,6 +1,8 @@
 import "@chatscope/chat-ui-kit-styles/dist/default/styles.min.css";
 import "../App.css";
 
+import { hashCode } from "../util";
+
 import {
   MainContainer,
   ChatContainer,
@@ -37,13 +39,6 @@ function mergeSenders(messages: ChatMessage[]): MessageMerged[] {
   }
   return result;
 }
-
-const hashCode = function (s: string) {
-  return s.split("").reduce(function (a, b) {
-    a = (a << 5) - a + b.charCodeAt(0);
-    return a & a;
-  }, 0);
-};
 
 function pickMessageColor(name: string): string {
   const nameHash = hashCode(name);
