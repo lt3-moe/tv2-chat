@@ -2,13 +2,13 @@ import React from "react";
 import { useEffect, useRef, useState, memo } from "react";
 import { MediaMTXWebRTCReader } from "../reader.js";
 
-import idle_video from "./assets/idle.mp4";
+import idle_video from "../assets/idle.mp4";
 import { createPlayer } from "@videojs/react";
 import * as videoJS from "@videojs/react";
 import { MinimalVideoSkin, Video } from "@videojs/react/video";
 import "@videojs/react/video/minimal-skin.css";
-import { type UserMessage } from "../ws";
-import { orderByTimestamp } from "../chatMessages";
+import { type ChatMessage } from "../chatMessages";
+import { useChatOverlayRender } from "../chatOverlayRender";
 
 const playerFeatures = [
   videoJS.controlsFeature,
@@ -84,7 +84,7 @@ const WithOverlay = memo(
 export default function PlayerWithOverlayEffects({
   chatMessages,
 }: {
-  chatMessages: ReadonlyMap<string, UserMessage>;
+  chatMessages: ReadonlyMap<string, ChatMessage>;
 }): React.ReactElement {
   const reader = useRef<MediaMTXWebRTCReader>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
