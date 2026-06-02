@@ -1,6 +1,7 @@
 import { type ChatMessage, orderByTimestamp } from "./chatMessages";
 import { useEffect, useRef } from "react";
 import { hashCode } from "./util";
+import { TIME_ON_PAGE_LOAD } from "./globalState";
 
 export const CANVAS_WIDTH = 1280;
 export const CANVAS_HEIGHT = 720;
@@ -9,8 +10,6 @@ const TEXT_FONT_SIZE = 48;
 const TEXT_FONT = `${TEXT_FONT_SIZE}px serif`;
 const MOVE_PIXEL_FACTOR = 600;
 
-/// should be used only as initial time source
-const timeOnPageLoad = Date.now();
 
 export function useChatOverlayRender(chatMessages: ReadonlyMap<string, ChatMessage>, canvasRef: React.RefObject<HTMLCanvasElement | null>): void {
   const animationRef = useRef<number | null>(null);
@@ -37,7 +36,7 @@ export function useChatOverlayRender(chatMessages: ReadonlyMap<string, ChatMessa
         ctx.font = TEXT_FONT;
         ctx.fillStyle = "#ff00ff";
 
-        const absoluteRenderTime = timeOnPageLoad + relativeTime;
+        const absoluteRenderTime = TIME_ON_PAGE_LOAD + relativeTime;
 
         for (const message of orderedChat) {
           const x = messagePositionX(message, absoluteRenderTime);

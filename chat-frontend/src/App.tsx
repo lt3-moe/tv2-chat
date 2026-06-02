@@ -3,24 +3,26 @@ import "./App.css";
 import Chat from "./components/chat";
 import PlayerWithOverlay from "./components/player";
 import { useCallback, useState } from "react";
-import type { AnyWsMessage, UserMessage } from "./ws";
+import type { AnyWsMessage } from "./ws";
 import useWebsocket from "./ws";
 import { useStickyState } from "./util";
 import { TitleBox } from "./components/titlebox";
 
 import { DarkModeSwitch, ChatOverlaySwitch } from "./components/controls";
-
+import { pruneOldMessages, type ChatMessage } from "./chatMessages";
+import { TIME_ON_PAGE_LOAD } from "./globalState";
 const _EMPTY_CHAT = new Map();
 
 export default function App() {
   const [chatState, setChatState] = useStickyState<
-    ReadonlyMap<string, UserMessage>
+    ReadonlyMap<string, ChatMessage>
   >({
     defaultValue: new Map(),
     storageKey: "chatHistory",
     serialize: (map) => JSON.stringify([...map.entries()]),
-    deserialize: (value) => new Map(JSON.parse(value)),
-  }); // TODO: limit depth of storage
+    deserialize: (value) =>
+      pruneOldMessages(new Map(JSON.parse(value)), TIME_ON_PAGE_LOAD),
+  });
 
   const [isDarkMode, setDarkMode] = useStickyState({
     defaultValue: false,
@@ -38,7 +40,10 @@ export default function App() {
     (message: AnyWsMessage) => {
       switch (message.kind) {
         case "newMessage": {
-          setChatState((state) => new Map([...state, [message.id, message]]));
+          setChatState((state) => {
+            const withThisMessage = new Map([...state, [message.id, message]]);
+            return pruneOldMessages(withThisMessage, TIME_ON_PAGE_LOAD);
+          });
           break;
         }
         case "viewCount": {
