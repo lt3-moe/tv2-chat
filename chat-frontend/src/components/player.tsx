@@ -93,8 +93,6 @@ export default function PlayerWithOverlayEffects({
     value: idle_video,
   });
 
-  const orderedChat = orderByTimestamp(chatMessages);
-
   useEffect(() => {
     reader.current = new MediaMTXWebRTCReader({
       url: `${window.location.origin}/webrtc-stream/whep`,
@@ -119,26 +117,7 @@ export default function PlayerWithOverlayEffects({
     };
   }, []);
 
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (canvas === null) {
-      return;
-    }
-    const ctx = canvas.getContext("2d");
-    if (ctx === null) {
-      return;
-    }
-
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    if (orderedChat.length === 0) {
-      return;
-    }
-
-    ctx.font = "48px serif";
-    ctx.fillStyle = "#ff00ff";
-    ctx.fillText(orderedChat[orderedChat.length - 1].text, 10, 50);
-    console.log("drawn canvas elements");
-  }, [orderedChat]);
+  useChatOverlayRender(chatMessages, canvasRef);
 
   return <WithOverlay videoSource={videoSource} canvasRef={canvasRef} />;
 }
