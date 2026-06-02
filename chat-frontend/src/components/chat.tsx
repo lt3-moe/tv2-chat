@@ -8,13 +8,13 @@ import {
   Message,
   MessageInput,
 } from "@chatscope/chat-ui-kit-react";
-import { type UserMessage } from "./ws";
+import { type ChatMessage, orderByTimestamp } from "../chatMessages";
 
-interface MessageMerged extends UserMessage {
+interface MessageMerged extends ChatMessage {
   showSender: boolean;
 }
 
-function mergeSenders(messages: UserMessage[]): MessageMerged[] {
+function mergeSenders(messages: ChatMessage[]): MessageMerged[] {
   if (messages.length === 0) {
     return [];
   }
@@ -57,7 +57,7 @@ const ChatUI = ({
   messages,
   onSend,
 }: {
-  messages: UserMessage[];
+  messages: ChatMessage[];
   onSend: (text: string) => void;
 }) => {
   return (
@@ -96,19 +96,11 @@ const ChatUI = ({
   );
 };
 
-export function orderByTimestamp(
-  messages: ReadonlyMap<string, UserMessage>,
-): UserMessage[] {
-  const result = [...messages.values()];
-  result.sort((first, second) => first.timestamp - second.timestamp);
-  return result;
-}
-
 export default function Chat({
   messageState,
   onSend,
 }: {
-  messageState: ReadonlyMap<string, UserMessage>;
+  messageState: ReadonlyMap<string, ChatMessage>;
   onSend: (arg0: string) => void;
 }) {
   return <ChatUI messages={orderByTimestamp(messageState)} onSend={onSend} />;

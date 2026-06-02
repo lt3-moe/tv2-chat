@@ -1,7 +1,7 @@
 import "@chatscope/chat-ui-kit-styles/dist/default/styles.min.css";
 import "./App.css";
-import Chat from "./chat";
-import PlayerWithOverlay from "./player";
+import Chat from "./components/chat";
+import PlayerWithOverlay from "./components/player";
 import { useCallback, useState } from "react";
 import type { AnyWsMessage, UserMessage } from "./ws";
 import useWebsocket from "./ws";
