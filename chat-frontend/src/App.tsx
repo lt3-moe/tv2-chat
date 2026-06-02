@@ -7,51 +7,9 @@ import type { AnyWsMessage, UserMessage } from "./ws";
 import useWebsocket from "./ws";
 import { useStickyState } from "./util";
 
-import dark_icon from "./assets/dark_mode_icon.svg";
-import light_icon from "./assets/light_mode_icon.svg";
 import lt3_logo from "./assets/image.png";
-import chatPlayIcon from "./assets/chat_play_icon.svg";
-import { ReactSVG } from "react-svg";
 
-function DarkModeSwitch({
-  isDark,
-  onClick,
-}: {
-  isDark: boolean;
-  onClick: () => void;
-}) {
-  return (
-    <ReactSVG
-      src={isDark ? light_icon : dark_icon}
-      width="48px"
-      height="auto"
-      title="Dark mode toggle"
-      onClick={onClick}
-      className="noselect"
-    />
-  );
-}
-
-function ChatOverlaySwitch({
-  enabled,
-  onClick,
-}: {
-  enabled: boolean;
-  onClick: () => void;
-}) {
-  return (
-    <ReactSVG
-      src={chatPlayIcon}
-      title="Chat overlay toggle"
-      onClick={onClick}
-      style={{
-        opacity: enabled ? 1 : 0.4,
-        height: "48px",
-      }}
-      className="noselect"
-    />
-  );
-}
+import { DarkModeSwitch, ChatOverlaySwitch } from "./components/controls";
 
 function TitleBox(): React.ReactElement {
   return (
