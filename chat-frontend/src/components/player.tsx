@@ -1,12 +1,18 @@
 import React from "react";
 import { useEffect, useRef, useState, memo } from "react";
-import { MediaMTXWebRTCReader } from "./reader.js";
+import { MediaMTXWebRTCReader } from "../reader.js";
 
-import idle_video from "./assets/idle.mp4";
+import idle_video from "../assets/idle.mp4";
 import { createPlayer } from "@videojs/react";
 import * as videoJS from "@videojs/react";
 import { MinimalVideoSkin, Video } from "@videojs/react/video";
 import "@videojs/react/video/minimal-skin.css";
+import { type ChatMessage } from "../chatMessages";
+import {
+  useChatOverlayRender,
+  CANVAS_HEIGHT,
+  CANVAS_WIDTH,
+} from "../chatOverlayRender";
 
 const playerFeatures = [
   videoJS.controlsFeature,
@@ -35,8 +41,8 @@ const Canvas = ({
         inset: 0,
         pointerEvents: "none",
       }}
-      width={1280}
-      height={720}
+      width={CANVAS_WIDTH}
+      height={CANVAS_HEIGHT}
     />
   );
 };
@@ -80,9 +86,9 @@ const WithOverlay = memo(
 );
 
 export default function PlayerWithOverlayEffects({
-  isChatOverlayEnabled,
+  chatMessages,
 }: {
-  isChatOverlayEnabled: boolean;
+  chatMessages: ReadonlyMap<string, ChatMessage>;
 }): React.ReactElement {
   const reader = useRef<MediaMTXWebRTCReader>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -115,26 +121,7 @@ export default function PlayerWithOverlayEffects({
     };
   }, []);
 
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (canvas === null) {
-      return;
-    }
-    const ctx = canvas.getContext("2d");
-    if (ctx === null) {
-      return;
-    }
-
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    if (!isChatOverlayEnabled) {
-      return;
-    }
-
-    ctx.font = "48px serif";
-    ctx.fillStyle = "#ff00ff";
-    ctx.fillText("sample text", 10, 50);
-    console.log("drawn canvas elements");
-  });
+  useChatOverlayRender(chatMessages, canvasRef);
 
   return <WithOverlay videoSource={videoSource} canvasRef={canvasRef} />;
 }

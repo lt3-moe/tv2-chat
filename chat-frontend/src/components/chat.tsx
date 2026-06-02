@@ -1,5 +1,7 @@
 import "@chatscope/chat-ui-kit-styles/dist/default/styles.min.css";
-import "./App.css";
+import "../App.css";
+
+import { hashCode } from "../util";
 
 import {
   MainContainer,
@@ -8,13 +10,13 @@ import {
   Message,
   MessageInput,
 } from "@chatscope/chat-ui-kit-react";
-import { type UserMessage } from "./ws";
+import { type ChatMessage, orderByTimestamp } from "../chatMessages";
 
-interface MessageMerged extends UserMessage {
+interface MessageMerged extends ChatMessage {
   showSender: boolean;
 }
 
-function mergeSenders(messages: UserMessage[]): MessageMerged[] {
+function mergeSenders(messages: ChatMessage[]): MessageMerged[] {
   if (messages.length === 0) {
     return [];
   }
@@ -38,13 +40,6 @@ function mergeSenders(messages: UserMessage[]): MessageMerged[] {
   return result;
 }
 
-const hashCode = function (s: string) {
-  return s.split("").reduce(function (a, b) {
-    a = (a << 5) - a + b.charCodeAt(0);
-    return a & a;
-  }, 0);
-};
-
 function pickMessageColor(name: string): string {
   const nameHash = hashCode(name);
   // experimentally inferred to give lt3_liz purple color
@@ -57,7 +52,7 @@ const ChatUI = ({
   messages,
   onSend,
 }: {
-  messages: UserMessage[];
+  messages: ChatMessage[];
   onSend: (text: string) => void;
 }) => {
   return (
@@ -96,19 +91,11 @@ const ChatUI = ({
   );
 };
 
-function orderByTimestamp(
-  messages: ReadonlyMap<string, UserMessage>,
-): UserMessage[] {
-  const result = [...messages.values()];
-  result.sort((first, second) => first.timestamp - second.timestamp);
-  return result;
-}
-
 export default function Chat({
   messageState,
   onSend,
 }: {
-  messageState: ReadonlyMap<string, UserMessage>;
+  messageState: ReadonlyMap<string, ChatMessage>;
   onSend: (arg0: string) => void;
 }) {
   return <ChatUI messages={orderByTimestamp(messageState)} onSend={onSend} />;
