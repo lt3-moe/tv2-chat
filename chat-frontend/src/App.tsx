@@ -10,6 +10,8 @@ import { useStickyState } from "./util";
 import dark_icon from "./assets/dark_mode_icon.svg";
 import light_icon from "./assets/light_mode_icon.svg";
 import lt3_logo from "./assets/image.png";
+import chatPlayIcon from "./assets/chat_play_icon.svg";
+import { ReactSVG } from "react-svg";
 
 function DarkModeSwitch({
   isDark,
@@ -19,11 +21,34 @@ function DarkModeSwitch({
   onClick: () => void;
 }) {
   return (
-    <img
+    <ReactSVG
       src={isDark ? light_icon : dark_icon}
       width="48px"
       height="auto"
+      title="Dark mode toggle"
       onClick={onClick}
+      className="noselect"
+    />
+  );
+}
+
+function ChatOverlaySwitch({
+  enabled,
+  onClick,
+}: {
+  enabled: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <ReactSVG
+      src={chatPlayIcon}
+      title="Chat overlay toggle"
+      onClick={onClick}
+      style={{
+        opacity: enabled ? 1 : 0.4,
+        height: "48px",
+      }}
+      className="noselect"
     />
   );
 }
@@ -52,6 +77,11 @@ export default function App() {
   const [isDarkMode, setDarkMode] = useStickyState({
     defaultValue: false,
     storageKey: "isDarkModeEnabled",
+  });
+
+  const [isChatOverlayEnabled, setChatOverlayEnabled] = useStickyState({
+    defaultValue: false,
+    storageKey: "isChatOverlayEnabled",
   });
 
   const [viewers, setViewers] = useState<number | undefined>(undefined);
@@ -84,7 +114,7 @@ export default function App() {
       <TitleBox />
       <div className="PlayerBox">
         <div className="videoPlayerDiv">
-          <PlayerWithOverlay />
+          <PlayerWithOverlay isChatOverlayEnabled={isChatOverlayEnabled} />
           <div style={{ display: "flex" }}>
             <div className="streamTitle">
               <p>title</p>
@@ -93,10 +123,16 @@ export default function App() {
               <p>Current viewers: {viewers !== undefined ? viewers : "???"}</p>
             </div>
           </div>
-          <DarkModeSwitch
-            isDark={isDarkMode}
-            onClick={() => setDarkMode(!isDarkMode)}
-          />
+          <div style={{ display: "flex" }}>
+            <DarkModeSwitch
+              isDark={isDarkMode}
+              onClick={() => setDarkMode(!isDarkMode)}
+            />
+            <ChatOverlaySwitch
+              enabled={isChatOverlayEnabled}
+              onClick={() => setChatOverlayEnabled(!isChatOverlayEnabled)}
+            />
+          </div>
         </div>
 
         <div className="mainChat">

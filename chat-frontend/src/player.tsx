@@ -1,4 +1,4 @@
-import type React from "react";
+import React from "react";
 import { useEffect, useRef, useState, memo } from "react";
 import { MediaMTXWebRTCReader } from "./reader.js";
 
@@ -19,36 +19,73 @@ type VideoSource =
   | { kind: "stream"; value: MediaStream }
   | { kind: "idle"; value: string };
 
-const VideoPlayer = memo(({ videoSource }: { videoSource: VideoSource }) => {
-  const Player = createPlayer({
-    features: videoSource.kind === "stream" ? playerFeatures : [],
-  });
+const Canvas = ({
+  canvasRef,
+}: {
+  canvasRef?: React.Ref<HTMLCanvasElement>;
+}) => {
   return (
-    <Player.Provider>
-      <MinimalVideoSkin>
-        <Video
-          src={videoSource.kind === "idle" ? videoSource.value : undefined}
-          autoPlay
-          loop
-          playsInline
-          muted
-          ref={(ref) => {
-            if (ref && videoSource.kind === "stream") {
-              ref.srcObject = videoSource.value;
-            }
-          }}
-          style={{
-            width: "100%",
-            aspectRatio: "16/9",
-          }}
-        />
-      </MinimalVideoSkin>
-    </Player.Provider>
+    <canvas
+      ref={canvasRef}
+      style={{
+        zIndex: 12147483647,
+        position: "absolute",
+        width: "100%",
+        height: "100%",
+        inset: 0,
+        pointerEvents: "none",
+      }}
+      width={1280}
+      height={720}
+    />
   );
-});
+};
 
-export default function PlayerWithOverlay(): React.ReactElement {
+const WithOverlay = memo(
+  ({
+    videoSource,
+    canvasRef,
+  }: {
+    videoSource: VideoSource;
+    canvasRef: React.Ref<HTMLCanvasElement>;
+  }) => {
+    const Player = createPlayer({
+      features: videoSource.kind === "stream" ? playerFeatures : [],
+    });
+
+    return (
+      <Player.Provider>
+        <MinimalVideoSkin>
+          <Video
+            src={videoSource.kind === "idle" ? videoSource.value : undefined}
+            autoPlay
+            loop
+            playsInline
+            muted
+            ref={(ref) => {
+              if (ref && videoSource.kind === "stream") {
+                ref.srcObject = videoSource.value;
+              }
+            }}
+            style={{
+              width: "100%",
+              aspectRatio: "16/9",
+            }}
+          />
+          <Canvas canvasRef={canvasRef} />
+        </MinimalVideoSkin>
+      </Player.Provider>
+    );
+  },
+);
+
+export default function PlayerWithOverlayEffects({
+  isChatOverlayEnabled,
+}: {
+  isChatOverlayEnabled: boolean;
+}): React.ReactElement {
   const reader = useRef<MediaMTXWebRTCReader>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const [videoSource, setVideoSource] = useState<VideoSource>({
     kind: "idle",
     value: idle_video,
@@ -78,5 +115,26 @@ export default function PlayerWithOverlay(): React.ReactElement {
     };
   }, []);
 
-  return <VideoPlayer videoSource={videoSource} />;
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (canvas === null) {
+      return;
+    }
+    const ctx = canvas.getContext("2d");
+    if (ctx === null) {
+      return;
+    }
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    if (!isChatOverlayEnabled) {
+      return;
+    }
+
+    ctx.font = "48px serif";
+    ctx.fillStyle = "#ff00ff";
+    ctx.fillText("sample text", 10, 50);
+    console.log("drawn canvas elements");
+  });
+
+  return <WithOverlay videoSource={videoSource} canvasRef={canvasRef} />;
 }
