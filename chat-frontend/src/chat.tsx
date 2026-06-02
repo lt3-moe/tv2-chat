@@ -96,7 +96,7 @@ const ChatUI = ({
   );
 };
 
-function orderByTimestamp(
+export function orderByTimestamp(
   messages: ReadonlyMap<string, UserMessage>,
 ): UserMessage[] {
   const result = [...messages.values()];

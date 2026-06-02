@@ -114,7 +114,7 @@ export default function App() {
       <TitleBox />
       <div className="PlayerBox">
         <div className="videoPlayerDiv">
-          <PlayerWithOverlay isChatOverlayEnabled={isChatOverlayEnabled} />
+          <PlayerWithOverlay chatMessages={chatState} />
           <div style={{ display: "flex" }}>
             <div className="streamTitle">
               <p>title</p>
