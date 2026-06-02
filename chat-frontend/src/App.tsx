@@ -55,6 +55,14 @@ export default function App() {
   );
 
   const ws = useWebsocket(onMessage);
+
+  const onDarkModeSwitch = useCallback(() => {
+    setDarkMode(!isDarkMode);
+  }, [setDarkMode, isDarkMode]);
+  const onChatOverlaySwitch = useCallback(() => {
+    setChatOverlayEnabled(!isChatOverlayEnabled);
+  }, [setChatOverlayEnabled, isChatOverlayEnabled]);
+
   return (
     <div
       style={{
@@ -79,13 +87,10 @@ export default function App() {
             </div>
           </div>
           <div style={{ display: "flex" }}>
-            <DarkModeSwitch
-              isDark={isDarkMode}
-              onClick={() => setDarkMode(!isDarkMode)}
-            />
+            <DarkModeSwitch isDark={isDarkMode} onClick={onDarkModeSwitch} />
             <ChatOverlaySwitch
               enabled={isChatOverlayEnabled}
-              onClick={() => setChatOverlayEnabled(!isChatOverlayEnabled)}
+              onClick={onChatOverlaySwitch}
             />
           </div>
         </div>
