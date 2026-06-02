@@ -27,6 +27,7 @@ function DarkModeSwitch({
       height="auto"
       title="Dark mode toggle"
       onClick={onClick}
+      className="noselect"
     />
   );
 }
@@ -41,13 +42,13 @@ function ChatOverlaySwitch({
   return (
     <ReactSVG
       src={chatPlayIcon}
-      width="48px"
-      height="auto"
       title="Chat overlay toggle"
       onClick={onClick}
       style={{
         opacity: enabled ? 1 : 0.4,
+        height: "48px",
       }}
+      className="noselect"
     />
   );
 }
