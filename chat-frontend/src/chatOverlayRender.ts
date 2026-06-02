@@ -9,13 +9,16 @@ const TEXT_FONT_SIZE = 48;
 const TEXT_FONT = `${TEXT_FONT_SIZE}px serif`;
 const MOVE_PIXEL_FACTOR = 600;
 
+/// should be used only as initial time source
+const timeOnPageLoad = Date.now();
+
 export function useChatOverlayRender(chatMessages: ReadonlyMap<string, ChatMessage>, canvasRef: React.RefObject<HTMLCanvasElement | null>): void {
   const animationRef = useRef<number | null>(null);
 
   const orderedChat = orderByTimestamp(chatMessages);
 
     useEffect(() => {
-      const animate = () => {
+      const animate = (relativeTime: number) => {
         const canvas = canvasRef.current;
         if (canvas === null) {
           return;
@@ -34,7 +37,7 @@ export function useChatOverlayRender(chatMessages: ReadonlyMap<string, ChatMessa
         ctx.font = TEXT_FONT;
         ctx.fillStyle = "#ff00ff";
 
-        const absoluteRenderTime = Date.now();
+        const absoluteRenderTime = timeOnPageLoad + relativeTime;
 
         for (const message of orderedChat) {
           const x = messagePositionX(message, absoluteRenderTime);
