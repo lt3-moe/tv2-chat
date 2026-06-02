@@ -47,7 +47,6 @@ export function useChatOverlayRender(chatMessages: ReadonlyMap<string, ChatMessa
           }
 
           ctx.fillText(message.text, x, y);
-          console.log("render at", x, y);
         }
 
         animationRef.current = requestAnimationFrame(animate);
