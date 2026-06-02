@@ -64,6 +64,8 @@ function TitleBox(): React.ReactElement {
   );
 }
 
+const _EMPTY_CHAT = new Map();
+
 export default function App() {
   const [chatState, setChatState] = useStickyState<
     ReadonlyMap<string, UserMessage>
@@ -114,7 +116,9 @@ export default function App() {
       <TitleBox />
       <div className="PlayerBox">
         <div className="videoPlayerDiv">
-          <PlayerWithOverlay chatMessages={chatState} />
+          <PlayerWithOverlay
+            chatMessages={isChatOverlayEnabled ? chatState : _EMPTY_CHAT}
+          />
           <div style={{ display: "flex" }}>
             <div className="streamTitle">
               <p>title</p>
