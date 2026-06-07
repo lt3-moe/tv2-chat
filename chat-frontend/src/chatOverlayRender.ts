@@ -80,7 +80,7 @@ function messagePositionX(message: ChatMessage, currentAbsoluteTime: number, wid
 }
 
 function textFlowSpeed(width: number): number {
-  const onScreenTime = 3;
+  const onScreenTime = 4;
   const slowestSpeed = CANVAS_WIDTH / onScreenTime;
 
   const distanceTravelled = CANVAS_WIDTH + width;
