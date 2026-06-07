@@ -15,33 +15,34 @@ authInternalUsers:
     # Permissions.
     permissions:
     - action: read
-      path: webrtc-stream
+      path: video-stream
     - action: playback
-      path: webrtc-stream
+      path: video-stream
     - action: publish
-      path: webrtc-stream
+      path: video-stream
 api: false
 metrics: false
 pprof: false
 playback: false
 
 
-
-hls: false
 srt: false
 rtsp: false
+webrtc: false
 
 rtmp: true
 rtmpAddress: :1935
 
-webrtc: true
-webrtcAddress: ":8889"
-webrtcLocalTCPAddress: ":8189"
-webrtcLocalUDPAddress: ":8190"
-webrtcEncryption: false  # handled by traefik, video traffic itself is encrypted with keys negotiated during handshake
-webrtcIPsFromInterfaces: true
-webrtcAdditionalHosts: [127.0.0.1]
+hls: true
+hlsAddress: :8888
+hlsTrustedProxies: [172.19.0.0/16]
+hlsAlwaysRemux: true
+hlsVariant: lowLatency
+hlsSegmentCount: 7
+hlsSegmentDuration: 1s
+hlsPartDuration: 500ms
+hlsSegmentMaxSize: 50M
 
 paths:
-  webrtc-stream:
+  video-stream:
     source: publisher
