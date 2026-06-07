@@ -43,6 +43,11 @@ export function useChatOverlayRender(chatMessages: ReadonlyMap<string, ChatMessa
           if (x > CANVAS_WIDTH){
             continue;
           }
+
+          ctx.strokeStyle = "black";
+          ctx.lineWidth = 6;
+          ctx.strokeText(message.text, x, y);
+
           ctx.fillStyle = pickMessageColor(message.author);
           ctx.fillText(message.text, x, y);
         }
