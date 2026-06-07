@@ -129,11 +129,9 @@ const useWatchVideo = (setVideoSource: (arg0: VideoSource) => void) => {
             break;
           default:
             console.error("unexpected status code when checking video stream");
-            setVideoSource("idle");
         }
       } catch (error) {
         console.log(error);
-        setVideoSource("idle");
       }
     }
 
