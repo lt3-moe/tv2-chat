@@ -1,7 +1,7 @@
 import "@chatscope/chat-ui-kit-styles/dist/default/styles.min.css";
 import "../App.css";
 
-import { hashCode } from "../util";
+import { pickMessageColor } from "../chatMessages";
 
 import {
   MainContainer,
@@ -38,14 +38,6 @@ function mergeSenders(messages: ChatMessage[]): MessageMerged[] {
     previousMessage = message;
   }
   return result;
-}
-
-function pickMessageColor(name: string): string {
-  const nameHash = hashCode(name);
-  // experimentally inferred to give lt3_liz purple color
-  const angleBase = 270;
-  const angle = (angleBase + nameHash) % 360;
-  return `hsl(${angle} 30% 70%)`;
 }
 
 const ChatUI = ({

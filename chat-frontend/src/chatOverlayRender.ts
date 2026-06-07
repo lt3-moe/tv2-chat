@@ -1,4 +1,4 @@
-import { type ChatMessage, orderByTimestamp } from "./chatMessages";
+import { type ChatMessage, orderByTimestamp, pickMessageColor } from "./chatMessages";
 import { useEffect, useRef } from "react";
 import { hashCode } from "./util";
 import { TIME_ON_PAGE_LOAD } from "./globalState";
@@ -34,7 +34,6 @@ export function useChatOverlayRender(chatMessages: ReadonlyMap<string, ChatMessa
         }
 
         ctx.font = TEXT_FONT;
-        ctx.fillStyle = "#ff00ff";
 
         const absoluteRenderTime = TIME_ON_PAGE_LOAD + relativeTime;
 
@@ -44,7 +43,7 @@ export function useChatOverlayRender(chatMessages: ReadonlyMap<string, ChatMessa
           if (x > CANVAS_WIDTH){
             continue;
           }
-
+          ctx.fillStyle = pickMessageColor(message.author);
           ctx.fillText(message.text, x, y);
         }
 
