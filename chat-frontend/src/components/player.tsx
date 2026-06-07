@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useRef, useState, memo } from "react";
 
 import idle_video from "../assets/idle.mp4";
@@ -21,9 +21,7 @@ const playerFeatures = [
   videoJS.fullscreenFeature,
 ];
 
-type VideoSource =
-  | { kind: "stream"; value: string }
-  | { kind: "idle"; value: string };
+type VideoSource = "stream" | "idle";
 
 const Canvas = ({
   canvasRef,
@@ -56,15 +54,15 @@ const WithOverlay = memo(
     canvasRef: React.Ref<HTMLCanvasElement>;
   }) => {
     const Player = createPlayer({
-      features: videoSource.kind === "stream" ? playerFeatures : [],
+      features: videoSource === "stream" ? playerFeatures : [],
     });
 
     return (
       <Player.Provider>
         <MinimalVideoSkin>
-          {videoSource.kind == "stream" ? (
+          {videoSource == "stream" ? (
             <HlsVideo
-              src={videoSource.value}
+              src={hlsURL}
               autoPlay
               playsInline
               muted
@@ -75,7 +73,7 @@ const WithOverlay = memo(
             />
           ) : (
             <Video
-              src={videoSource.value}
+              src={idle_video}
               autoPlay
               loop
               playsInline
@@ -102,12 +100,48 @@ export default function PlayerWithOverlayEffects({
   chatMessages: ReadonlyMap<string, ChatMessage>;
 }): React.ReactElement {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [videoSource, setVideoSource] = useState<VideoSource>({
-    kind: "stream",
-    value: hlsURL,
-  });
+  const [videoSource, setVideoSource] = useState<VideoSource>("idle");
+
+  useWatchVideo(setVideoSource);
 
   useChatOverlayRender(chatMessages, canvasRef);
 
   return <WithOverlay videoSource={videoSource} canvasRef={canvasRef} />;
 }
+
+const useWatchVideo = (setVideoSource: (arg0: VideoSource) => void) => {
+  const checkRef = useRef(0);
+
+  useEffect(() => {
+    async function checkVideoAvailable() {
+      try {
+        const response = await fetch(hlsURL, {
+          signal: AbortSignal.timeout(5000),
+        });
+        switch (response.status) {
+          case 200:
+            console.log("available");
+            setVideoSource("stream");
+            break;
+          case 404:
+            console.log("not available");
+            setVideoSource("idle");
+            break;
+          default:
+            console.error("unexpected status code when checking video stream");
+            setVideoSource("idle");
+        }
+      } catch (error) {
+        console.log(error);
+        setVideoSource("idle");
+      }
+    }
+
+    checkRef.current = setInterval(checkVideoAvailable, 5000);
+    return () => {
+      if (checkRef.current) {
+        clearTimeout(checkRef.current);
+      }
+    };
+  }, [setVideoSource]);
+};
