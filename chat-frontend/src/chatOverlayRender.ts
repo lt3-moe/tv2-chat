@@ -46,7 +46,7 @@ export function useChatOverlayRender(chatMessages: ReadonlyMap<string, ChatMessa
           }
 
           ctx.strokeStyle = "black";
-          ctx.lineWidth = 6;
+          ctx.lineWidth = 3;
           ctx.strokeText(message.text, x, y);
 
           ctx.fillStyle = pickMessageColor(message.author);
