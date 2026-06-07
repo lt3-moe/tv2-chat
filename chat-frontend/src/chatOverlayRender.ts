@@ -84,9 +84,7 @@ function textFlowSpeed(width: number): number {
   const slowestSpeed = CANVAS_WIDTH / onScreenTime;
 
   const distanceTravelled = CANVAS_WIDTH + width;
-  const computedSpeed = slowestSpeed * distanceTravelled / CANVAS_WIDTH
-
-  console.log("computed speed %d for text of width %d", computedSpeed, width);
+  const computedSpeed = slowestSpeed * distanceTravelled / CANVAS_WIDTH;
 
   return computedSpeed;
 }
