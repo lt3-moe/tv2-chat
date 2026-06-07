@@ -1,3 +1,5 @@
+import { hashCode } from "./util";
+
 export interface ChatMessage {
   text: string;
   author: string;
@@ -24,4 +26,12 @@ export function pruneOldMessages(messages: ReadonlyMap<string, ChatMessage>, abs
     result.set(messageId, message);
   }
   return result;
+}
+
+export function pickMessageColor(name: string): string {
+  const nameHash = hashCode(name);
+  // experimentally inferred to give lt3_liz purple color
+  const angleBase = 270;
+  const angle = (angleBase + nameHash) % 360;
+  return `hsl(${angle} 30% 70%)`;
 }
