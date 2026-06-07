@@ -1,11 +1,11 @@
 import React from "react";
-import { useEffect, useRef, useState, memo } from "react";
-import { MediaMTXWebRTCReader } from "../reader.js";
+import { useRef, useState, memo } from "react";
 
 import idle_video from "../assets/idle.mp4";
 import { createPlayer } from "@videojs/react";
 import * as videoJS from "@videojs/react";
 import { MinimalVideoSkin, Video } from "@videojs/react/video";
+import { HlsVideo } from "@videojs/react/media/hls-video";
 import "@videojs/react/video/minimal-skin.css";
 import { type ChatMessage } from "../chatMessages";
 import {
@@ -22,7 +22,7 @@ const playerFeatures = [
 ];
 
 type VideoSource =
-  | { kind: "stream"; value: MediaStream }
+  | { kind: "stream"; value: string }
   | { kind: "idle"; value: string };
 
 const Canvas = ({
@@ -62,22 +62,31 @@ const WithOverlay = memo(
     return (
       <Player.Provider>
         <MinimalVideoSkin>
-          <Video
-            src={videoSource.kind === "idle" ? videoSource.value : undefined}
-            autoPlay
-            loop
-            playsInline
-            muted
-            ref={(ref) => {
-              if (ref && videoSource.kind === "stream") {
-                ref.srcObject = videoSource.value;
-              }
-            }}
-            style={{
-              width: "100%",
-              aspectRatio: "16/9",
-            }}
-          />
+          {videoSource.kind == "stream" ? (
+            <HlsVideo
+              src={videoSource.value}
+              autoPlay
+              playsInline
+              muted
+              style={{
+                width: "100%",
+                aspectRatio: "16/9",
+              }}
+            />
+          ) : (
+            <Video
+              src={videoSource.value}
+              autoPlay
+              loop
+              playsInline
+              muted
+              style={{
+                width: "100%",
+                aspectRatio: "16/9",
+              }}
+            />
+          )}
+
           <Canvas canvasRef={canvasRef} />
         </MinimalVideoSkin>
       </Player.Provider>
@@ -85,41 +94,18 @@ const WithOverlay = memo(
   },
 );
 
+const hlsURL = "/video-stream/index.m3u8";
+
 export default function PlayerWithOverlayEffects({
   chatMessages,
 }: {
   chatMessages: ReadonlyMap<string, ChatMessage>;
 }): React.ReactElement {
-  const reader = useRef<MediaMTXWebRTCReader>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [videoSource, setVideoSource] = useState<VideoSource>({
-    kind: "idle",
-    value: idle_video,
+    kind: "stream",
+    value: hlsURL,
   });
-
-  useEffect(() => {
-    reader.current = new MediaMTXWebRTCReader({
-      url: `${window.location.origin}/webrtc-stream/whep`,
-      onError: (err) => {
-        console.error(err);
-      },
-      onTrack: (evt) => {
-        setVideoSource({ kind: "stream", value: evt.streams[0] });
-      },
-      onDataChannel: (evt) => {
-        evt.channel.binaryType = "arraybuffer";
-        evt.channel.onmessage = (evt) => {
-          console.log("data channel message", evt.data);
-        };
-      },
-    });
-
-    return () => {
-      if (reader.current !== null) {
-        reader.current.close();
-      }
-    };
-  }, []);
 
   useChatOverlayRender(chatMessages, canvasRef);
 
