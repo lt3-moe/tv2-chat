@@ -8,7 +8,6 @@ export const CANVAS_HEIGHT = 720;
 
 const TEXT_FONT_SIZE = 48;
 const TEXT_FONT = `${TEXT_FONT_SIZE}px serif`;
-const MOVE_PIXEL_FACTOR = 600;
 
 
 export function useChatOverlayRender(chatMessages: ReadonlyMap<string, ChatMessage>, canvasRef: React.RefObject<HTMLCanvasElement | null>): void {
@@ -38,7 +37,9 @@ export function useChatOverlayRender(chatMessages: ReadonlyMap<string, ChatMessa
         const absoluteRenderTime = TIME_ON_PAGE_LOAD + relativeTime;
 
         for (const message of orderedChat) {
-          const x = messagePositionX(message, absoluteRenderTime);
+          const textMetrics = ctx.measureText(message.text);
+
+          const x = messagePositionX(message, absoluteRenderTime, textMetrics.width);
           const y = messagePositionY(message);
           if (x > CANVAS_WIDTH){
             continue;
@@ -71,9 +72,21 @@ function messagePositionY(message: ChatMessage): number {
   return CANVAS_HEIGHT * 0.05 + CANVAS_HEIGHT * (1 - 0.05) * factor;
 }
 
-function messagePositionX(message: ChatMessage, currentAbsoluteTime: number): number {
+function messagePositionX(message: ChatMessage, currentAbsoluteTime: number, width: number): number {
   const base = CANVAS_WIDTH;
   const delayFactor = 1000;
-  const offset = (currentAbsoluteTime - message.timestamp - delayFactor) / 1000 * MOVE_PIXEL_FACTOR;
+  const offset = (currentAbsoluteTime - message.timestamp - delayFactor) / 1000 * textFlowSpeed(width);
   return base - offset;
+}
+
+function textFlowSpeed(width: number): number {
+  const onScreenTime = 3;
+  const slowestSpeed = CANVAS_WIDTH / onScreenTime;
+
+  const distanceTravelled = CANVAS_WIDTH + width;
+  const computedSpeed = slowestSpeed * distanceTravelled / CANVAS_WIDTH
+
+  console.log("computed speed %d for text of width %d", computedSpeed, width);
+
+  return computedSpeed;
 }
