@@ -6,7 +6,7 @@ export default defineConfig({
   plugins: [react()],
   server: {
     proxy: {
-      '/webrtc-stream': 'http://localhost:8889',
+      '/video-stream': 'http://localhost:8888',
       '/ws': {
         target: 'http://localhost:8000',
         ws: true,
