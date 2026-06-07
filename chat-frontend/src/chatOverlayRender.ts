@@ -68,12 +68,8 @@ function messagePositionY(message: ChatMessage): number {
 }
 
 function messagePositionX(message: ChatMessage, currentAbsoluteTime: number): number {
-  const base = -approximateTextWidth(message.text);
+  const base = CANVAS_WIDTH;
   const delayFactor = 1000;
   const offset = (currentAbsoluteTime - message.timestamp - delayFactor) / 1000 * MOVE_PIXEL_FACTOR;
-  return base + offset;
-}
-
-function approximateTextWidth(text: string): number {
-  return text.length * TEXT_FONT_SIZE;
+  return base - offset;
 }
