@@ -51,7 +51,7 @@ func (b *Broker) countUniqueViewers() int {
 	clientNames := map[string]Unit{}
 
 	for client := range b.clients {
-		clientNames[client.username] = Unit{}
+		clientNames[client.userInfo.UserId] = Unit{}
 	}
 	return len(clientNames)
 }

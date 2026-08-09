@@ -17,7 +17,7 @@ import (
 type Client struct {
 	broker   *Broker
 	conn     *websocket.Conn
-	username string
+	userInfo UserInfo
 	send     chan AnyMessage
 }
 
@@ -45,7 +45,7 @@ func (c *Client) handleIncoming() {
 	c.conn.SetReadDeadline(time.Now().Add(pongWait))
 	c.conn.SetPongHandler(func(string) error {
 		c.conn.SetReadDeadline(time.Now().Add(pongWait))
-		log.Printf("got pong from client %s", c.username)
+		log.Printf("got pong from client %+v", c.userInfo)
 		return nil
 	})
 	for {
@@ -57,8 +57,8 @@ func (c *Client) handleIncoming() {
 			break
 		}
 		messageText := string(messageRaw)
-		log.Println("got ", messageText, " from", c.username)
-		message := TextMessage{Text: messageText, Author: c.username, Timestamp: int(time.Now().UnixMilli()), Id: uuid.NewString()}
+		log.Printf("got %s from %+v", messageText, c.userInfo)
+		message := TextMessage{Text: messageText, AuthorId: c.userInfo.UserId, AuthorName: c.userInfo.DisplayName, Timestamp: int(time.Now().UnixMilli()), Id: uuid.NewString()}
 		c.broker.broadcast <- message
 	}
 }
@@ -129,12 +129,16 @@ func anonymizeName(seed, value string) string {
 	return fmt.Sprintf("anonymous-%s", name)
 }
 
+func anonymizeUserId(seed, value string) string {
+	u := uuid.NewSHA1(uuid.NameSpaceURL, []byte(seed+value))
+	return u.String()
+}
+
 func serveWs(broker *Broker, w http.ResponseWriter, r *http.Request) {
-	accessHeader := r.Header.Get("X-Forwarded-Access-Token")
-	username, err := parseJwtUsername(accessHeader)
+	user, err := getUserFromRequest(r)
 	if err != nil {
 		log.Printf("error parsing jwt from header: %s", err)
-		log.Printf("header value was \"%s\"", accessHeader)
+		log.Printf("header value was %+v", r.Header)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
 		err := json.NewEncoder(w).Encode(ErrorResponse{Message: err.Error()})
@@ -144,7 +148,8 @@ func serveWs(broker *Broker, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if *anonymizeSeed != "" {
-		username = anonymizeName(*anonymizeSeed, username)
+		user.DisplayName = anonymizeName(*anonymizeSeed, user.DisplayName)
+		user.UserId = anonymizeUserId(*anonymizeSeed, user.UserId)
 	}
 
 	conn, err := upgrader.Upgrade(w, r, nil)
@@ -153,10 +158,10 @@ func serveWs(broker *Broker, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	client := &Client{broker: broker, conn: conn, username: username, send: make(chan AnyMessage, *scrollbackSize)}
+	client := &Client{broker: broker, conn: conn, userInfo: user, send: make(chan AnyMessage, *scrollbackSize)}
 	broker.Connect(client)
 
 	go client.handleIncoming()
 	go client.handleOutgoing()
-	log.Println("connected new client for", username)
+	log.Println("connected new client for", user)
 }

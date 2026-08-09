@@ -2,38 +2,31 @@ package main
 
 import (
 	"fmt"
-	"log"
-
-	"github.com/golang-jwt/jwt/v5"
+	"net/http"
 )
 
-func parseJwtUsername(value string) (string, error) {
-	if value == "" {
+type UserInfo struct {
+	UserId      string
+	DisplayName string
+}
+
+func getUserFromRequest(r *http.Request) (UserInfo, error) {
+	userId := r.Header.Get("X-Forwarded-User")
+	displayName := r.Header.Get("X-Forwarded-User-Name")
+
+	if userId == "" || displayName == "" {
 		if *allowAnonymous {
-			return getRandomUsername(), nil
+			generatedUsername := getRandomUsername()
+			return UserInfo{
+				UserId:      generatedUsername,
+				DisplayName: generatedUsername,
+			}, nil
 		} else {
-			return "", fmt.Errorf("value is missing, token must be provided via X-Forwarded-Access-Token")
+			return UserInfo{}, fmt.Errorf("Either X-Forwarded-User or X-Forwarded-User-Name value is missing")
 		}
 	}
-	return extractNameUnverified(value)
-}
-
-type Claims struct {
-	jwt.RegisteredClaims
-	Name string `json:"name"`
-}
-
-func extractNameUnverified(jwtValue string) (string, error) {
-	var claims jwt.Claims = &Claims{}
-	token, _, err := jwt.NewParser().ParseUnverified(jwtValue, claims)
-	if err != nil {
-		log.Printf("error parsing jwt: %s", err.Error())
-		return "", fmt.Errorf("failed to parse jwt claims")
-	}
-
-	if castedClaims, ok := token.Claims.(*Claims); ok {
-		return castedClaims.Name, nil
-	} else {
-		return "", fmt.Errorf("failed to extract name claim from jwt")
-	}
+	return UserInfo{
+		UserId:      userId,
+		DisplayName: displayName,
+	}, nil
 }
