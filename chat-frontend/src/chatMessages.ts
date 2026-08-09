@@ -2,7 +2,8 @@ import { hashCode } from "./util";
 
 export interface ChatMessage {
   text: string;
-  author: string;
+  authorId: string;
+  authorName: string;
   timestamp: number;
   id: string;
 }

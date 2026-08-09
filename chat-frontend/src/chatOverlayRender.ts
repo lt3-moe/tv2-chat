@@ -49,7 +49,7 @@ export function useChatOverlayRender(chatMessages: ReadonlyMap<string, ChatMessa
           ctx.lineWidth = 3;
           ctx.strokeText(message.text, x, y);
 
-          ctx.fillStyle = pickMessageColor(message.author);
+          ctx.fillStyle = pickMessageColor(message.authorId);
           ctx.fillText(message.text, x, y);
         }
 

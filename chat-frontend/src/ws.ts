@@ -4,7 +4,8 @@ import { useEffect, useRef } from "react";
 export interface UserMessage {
   kind: "newMessage";
   text: string;
-  author: string;
+  authorId: string;
+  authorName: string;
   timestamp: number;
   id: string;
 }

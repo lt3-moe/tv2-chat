@@ -24,7 +24,7 @@ function mergeSenders(messages: ChatMessage[]): MessageMerged[] {
   const result = [{ ...messages[0], showSender: true }];
   let previousMessage = messages[0];
   for (const message of messages.slice(1)) {
-    if (message.author == previousMessage.author) {
+    if (message.authorId == previousMessage.authorId) {
       result.push({
         ...message,
         showSender: false,
@@ -52,7 +52,7 @@ const ChatUI = ({
       <ChatContainer>
         <MessageList>
           {mergeSenders(messages).map((message, idx) => {
-            const messageColor = pickMessageColor(message.author);
+            const messageColor = pickMessageColor(message.authorId);
             return (
               <Message
                 key={`message-${idx}`}
@@ -67,7 +67,7 @@ const ChatUI = ({
                 style={{ "--bubble-color": messageColor }}
               >
                 <Message.Header>
-                  {message.showSender ? message.author : null}
+                  {message.showSender ? message.authorName : null}
                 </Message.Header>
                 <Message.TextContent>{message.text}</Message.TextContent>
               </Message>

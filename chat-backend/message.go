@@ -46,10 +46,11 @@ func SerWithTag[T AnyMessage](m T) []byte {
 }
 
 type TextMessage struct {
-	Text      string `json:"text"`
-	Author    string `json:"author"`
-	Timestamp int    `json:"timestamp"`
-	Id        string `json:"id"`
+	Text       string `json:"text"`
+	AuthorId   string `json:"authorId"`
+	AuthorName string `json:"authorName"`
+	Timestamp  int    `json:"timestamp"`
+	Id         string `json:"id"`
 }
 
 func (t TextMessage) Kind() string {
