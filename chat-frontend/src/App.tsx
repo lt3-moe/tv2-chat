@@ -19,9 +19,15 @@ export default function App() {
   >({
     defaultValue: new Map(),
     storageKey: "chatHistory",
-    serialize: (map) => JSON.stringify([...map.entries()]),
-    deserialize: (value) =>
-      pruneOldMessages(new Map(JSON.parse(value)), TIME_ON_PAGE_LOAD),
+    serialize: (map) =>
+      JSON.stringify({ version: 1, data: [...map.entries()] }),
+    deserialize: (value) => {
+      const deser = JSON.parse(value);
+      if (typeof deser != "object" || deser.version < 1) {
+        return new Map();
+      }
+      return pruneOldMessages(new Map(deser.data), TIME_ON_PAGE_LOAD);
+    },
   });
 
   const [isDarkMode, setDarkMode] = useStickyState({
