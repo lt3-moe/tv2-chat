@@ -45,7 +45,7 @@ func (c *Client) handleIncoming() {
 	c.conn.SetReadDeadline(time.Now().Add(pongWait))
 	c.conn.SetPongHandler(func(string) error {
 		c.conn.SetReadDeadline(time.Now().Add(pongWait))
-		log.Printf("got pong from client %+v", c.userInfo)
+		log.Printf("got pong from client %s", c.userInfo)
 		return nil
 	})
 	for {
@@ -57,7 +57,7 @@ func (c *Client) handleIncoming() {
 			break
 		}
 		messageText := string(messageRaw)
-		log.Printf("got %s from %+v", messageText, c.userInfo)
+		log.Printf("got %s from %s", messageText, c.userInfo)
 		message := TextMessage{Text: messageText, AuthorId: c.userInfo.UserId, AuthorName: c.userInfo.DisplayName, Timestamp: int(time.Now().UnixMilli()), Id: uuid.NewString()}
 		c.broker.broadcast <- message
 	}

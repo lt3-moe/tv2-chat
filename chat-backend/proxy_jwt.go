@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"net/http"
+
+	"github.com/google/uuid"
 )
 
 type UserInfo struct {
@@ -16,9 +18,10 @@ func getUserFromRequest(r *http.Request) (UserInfo, error) {
 
 	if userId == "" || displayName == "" {
 		if *allowAnonymous {
+			generatedUserId := uuid.NewString()
 			generatedUsername := getRandomUsername()
 			return UserInfo{
-				UserId:      generatedUsername,
+				UserId:      generatedUserId,
 				DisplayName: generatedUsername,
 			}, nil
 		} else {
